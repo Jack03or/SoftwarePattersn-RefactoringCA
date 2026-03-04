@@ -263,14 +263,11 @@ public class Menu extends JFrame{
 					    while(loop)
 					    {
 					    Object customerID = JOptionPane.showInputDialog(f, "Enter Customer ID:");
-					    
-					    for (Customer aCustomer: customerList){
-					    	
-					    	if(aCustomer.getCustomerID().equals(customerID))//search customer list for matching customer ID
-					    	{
-					    		found = true;
-					    		customer = aCustomer;
-					    	}					    	
+					    // Reuse helper method for customer lookup by ID
+					    customer = findCustomerById(String.valueOf(customerID));
+					    if(customer != null)
+					    {
+					    	found = true;
 					    }
 					    
 					    if(found == false)
@@ -1629,6 +1626,18 @@ public class Menu extends JFrame{
 	}
 	}
 	
+	// Find a customer in the list using the customer ID
+	private Customer findCustomerById(String customerID)
+	{
+		for (Customer aCustomer: customerList){
+			if(aCustomer.getCustomerID().equals(customerID))
+			{
+				return aCustomer;
+			}
+		}
+		return null;
+	}
+
 	public static boolean isNumeric(String str)  // a method that tests if a string is numeric
 	{  
 	  try  
