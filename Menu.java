@@ -407,27 +407,22 @@ public class Menu extends JFrame{
 				
 				boolean found = false;
 			
-				if(customerList.isEmpty())
+				// Use one shared check before running admin actions
+				if(!hasCustomersForAdminAction())
 				{
-					JOptionPane.showMessageDialog(f, "There are no customers yet!"  ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-					f.dispose();
-					admin();
-					
+					return;
 				}
 				else
 				{
 			    while(loop)
 			    {
 			    Object customerID = JOptionPane.showInputDialog(f, "Customer ID of Customer You Wish to Apply Charges to:");
-			    
-			    for (Customer aCustomer: customerList){
-			    	
-			    	if(aCustomer.getCustomerID().equals(customerID))
-			    	{
-			    		found = true;
-			    		customer = aCustomer; 
-			    		loop = false;
-			    	}					    	
+			    // Reuse helper method for customer lookup by ID
+			    customer = findCustomerById(String.valueOf(customerID));
+			    if(customer != null)
+			    {
+			    	found = true;
+			    	loop = false;
 			    }
 			    
 			    if(found == false)
@@ -552,27 +547,22 @@ public class Menu extends JFrame{
 				
 				boolean found = false;
 			
-				if(customerList.isEmpty())
+				// Use one shared check before running admin actions
+				if(!hasCustomersForAdminAction())
 				{
-					JOptionPane.showMessageDialog(f, "There are no customers yet!"  ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-					f.dispose();
-					admin();
-					
+					return;
 				}
 				else
 				{
 			    while(loop)
 			    {
 			    Object customerID = JOptionPane.showInputDialog(f, "Customer ID of Customer You Wish to Apply Interest to:");
-			    
-			    for (Customer aCustomer: customerList){
-			    	
-			    	if(aCustomer.getCustomerID().equals(customerID))
-			    	{
-			    		found = true;
-			    		customer = aCustomer; 
-			    		loop = false;
-			    	}					    	
+			    // Reuse helper method for customer lookup by ID
+			    customer = findCustomerById(String.valueOf(customerID));
+			    if(customer != null)
+			    {
+			    	found = true;
+			    	loop = false;
 			    }
 			    
 			    if(found == false)
@@ -1623,12 +1613,25 @@ public class Menu extends JFrame{
 			}
 	     });		}		
 	     });
-	}
-	}
-	
-	// Find a customer in the list using the customer ID
-	private Customer findCustomerById(String customerID)
-	{
+		}
+		}
+		
+		// Check if there are customers before an admin action runs
+		private boolean hasCustomersForAdminAction()
+		{
+			if(customerList.isEmpty())
+			{
+				JOptionPane.showMessageDialog(f, "There are no customers yet!"  ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
+				f.dispose();
+				admin();
+				return false;
+			}
+			return true;
+		}
+
+		// Find a customer in the list using the customer ID
+		private Customer findCustomerById(String customerID)
+		{
 		for (Customer aCustomer: customerList){
 			if(aCustomer.getCustomerID().equals(customerID))
 			{
