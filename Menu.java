@@ -486,13 +486,8 @@ public class Menu extends JFrame{
 						else
 						{
 						
-					for(int i = 0; i < customer.getAccounts().size(); i++)
-				    {
-				    	if(customer.getAccounts().get(i).getNumber() == box.getSelectedItem() )
-				    	{
-				    		acc = customer.getAccounts().get(i);
-				    	}
-				    }
+					// Reuse helper method for account lookup by account number
+					acc = findAccountByNumber(customer.getAccounts(), String.valueOf(box.getSelectedItem()));
 										
 					continueButton.addActionListener(new ActionListener(  ) {
 						public void actionPerformed(ActionEvent ae) {
@@ -628,13 +623,8 @@ public class Menu extends JFrame{
 						else
 						{
 						
-					for(int i = 0; i < customer.getAccounts().size(); i++)
-				    {
-				    	if(customer.getAccounts().get(i).getNumber() == box.getSelectedItem() )
-				    	{
-				    		acc = customer.getAccounts().get(i);
-				    	}
-				    }
+					// Reuse helper method for account lookup by account number
+					acc = findAccountByNumber(customer.getAccounts(), String.valueOf(box.getSelectedItem()));
 										
 					continueButton.addActionListener(new ActionListener(  ) {
 						public void actionPerformed(ActionEvent ae) {
@@ -1293,13 +1283,8 @@ public class Menu extends JFrame{
 		
 	    
 	   
-	    for(int i = 0; i<e.getAccounts().size(); i++)
-	    {
-	    	if(e.getAccounts().get(i).getNumber() == box.getSelectedItem() )
-	    	{
-	    		acc = e.getAccounts().get(i);
-	    	}
-	    }
+	    // Reuse helper method for account lookup by account number
+	    acc = findAccountByNumber(e.getAccounts(), String.valueOf(box.getSelectedItem()));
 	    
 	    
 	    
@@ -1623,12 +1608,25 @@ public class Menu extends JFrame{
 		}
 
 		// Find a customer in the list using the customer ID
-		private Customer findCustomerById(String customerID)
-		{
+	private Customer findCustomerById(String customerID)
+	{
 		for (Customer aCustomer: customerList){
 			if(aCustomer.getCustomerID().equals(customerID))
 			{
 				return aCustomer;
+			}
+		}
+		return null;
+	}
+
+	// Find an account in a list using the account number
+	private CustomerAccount findAccountByNumber(ArrayList<CustomerAccount> accounts, String accountNumber)
+	{
+		for (CustomerAccount account : accounts)
+		{
+			if(account.getNumber().equals(accountNumber))
+			{
+				return account;
 			}
 		}
 		return null;
