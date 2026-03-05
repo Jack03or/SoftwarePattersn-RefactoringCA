@@ -2,6 +2,8 @@ import java.awt.*;
 
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.io.IOException;
+import java.io.File;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,6 +20,9 @@ import java.util.Date;
 public class Menu extends JFrame{
 	
 	private ArrayList<Customer> customerList = new ArrayList<Customer>();
+	private BankFile bankFile = new BankFile();
+	private String currentFilePath = null;
+	private boolean hasUnsavedChanges = false;
     private int position = 0;
 	private String password;
 	private Customer customer = null;
@@ -53,7 +58,7 @@ public class Menu extends JFrame{
 			f.setSize(400, 300);
 			f.setLocation(200, 200);
 			f.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent we) { System.exit(0); }
+				public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 			});
 
 			JPanel userTypePanel = new JPanel();
@@ -94,7 +99,7 @@ public class Menu extends JFrame{
 						f1.setSize(400, 300);
 						f1.setLocation(200, 200);
 						f1.addWindowListener(new WindowAdapter() {
-							public void windowClosing(WindowEvent we) { System.exit(0); }
+							public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 						});
 							Container content = f1.getContentPane();
 							content.setLayout(new BorderLayout());
@@ -162,6 +167,7 @@ public class Menu extends JFrame{
 										Customer customer = new Customer(PPS, surname, firstName, DOB, CustomerID, password, accounts);
 											
 										customerList.add(customer);
+										markDataChanged();
 									
 										JOptionPane.showMessageDialog(f, "CustomerID = " + CustomerID +"\n Password = " + password  ,"Customer created.",  JOptionPane.INFORMATION_MESSAGE);
 										menuStart();
@@ -337,7 +343,7 @@ public class Menu extends JFrame{
 		f.setSize(400, 400);
 		f.setLocation(200, 200);
 		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { System.exit(0); }
+			public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 		});          
 		f.setVisible(true);
 		
@@ -390,6 +396,21 @@ public class Menu extends JFrame{
 		JButton accountButton = new JButton("Add an Account to a Customer");
 		accountPanel.add(accountButton);
 		accountButton.setPreferredSize(new Dimension(250, 20));
+
+		JPanel openPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton openButton = new JButton("Open File");
+		openPanel.add(openButton);
+		openButton.setPreferredSize(new Dimension(250, 20));
+
+		JPanel savePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton saveButton = new JButton("Save File");
+		savePanel.add(saveButton);
+		saveButton.setPreferredSize(new Dimension(250, 20));
+
+		JPanel saveAsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton saveAsButton = new JButton("Save File As");
+		saveAsPanel.add(saveAsButton);
+		saveAsButton.setPreferredSize(new Dimension(250, 20));
 		
 		JPanel returnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		JButton returnButton = new JButton("Exit Admin Menu");
@@ -398,8 +419,11 @@ public class Menu extends JFrame{
 		JLabel label1 = new JLabel("Please select an option");
 		
 		content = f.getContentPane();
-		content.setLayout(new GridLayout(11, 1));
+		content.setLayout(new GridLayout(14, 1));
 		content.add(label1);
+		content.add(openPanel);
+		content.add(savePanel);
+		content.add(saveAsPanel);
 		content.add(accountPanel);
 		content.add(bankChargesPanel);
 		content.add(interestPanel);
@@ -411,6 +435,24 @@ public class Menu extends JFrame{
 		content.add(deleteCustomerPanel);
 	//	content.add(deleteAccountPanel);
 		content.add(returnPanel);
+		
+		openButton.addActionListener(new ActionListener(  ) {
+			public void actionPerformed(ActionEvent ae) {
+				openDataFromFile();
+			}
+		});
+
+		saveButton.addActionListener(new ActionListener(  ) {
+			public void actionPerformed(ActionEvent ae) {
+				saveData();
+			}
+		});
+
+		saveAsButton.addActionListener(new ActionListener(  ) {
+			public void actionPerformed(ActionEvent ae) {
+				saveDataAs();
+			}
+		});
 		
 		
 		bankChargesButton.addActionListener(new ActionListener(  ) {
@@ -459,7 +501,7 @@ public class Menu extends JFrame{
 					f.setSize(400, 300);
 					f.setLocation(200, 200);
 					f.addWindowListener(new WindowAdapter() {
-						public void windowClosing(WindowEvent we) { System.exit(0); }
+						public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 					});          
 					f.setVisible(true);
 				
@@ -507,6 +549,7 @@ public class Menu extends JFrame{
 							String euro = "\u20ac";
 						 	// Use account type behaviour for admin charge
 							acc.applyAdminCharge();
+							markDataChanged();
 							JOptionPane.showMessageDialog(f, acc.getAdminChargeDisplayAmount() + euro + " account fee aplied."  ,"",  JOptionPane.INFORMATION_MESSAGE);
 							JOptionPane.showMessageDialog(f, "New balance = " + acc.getBalance() ,"Success!",  JOptionPane.INFORMATION_MESSAGE);
 							
@@ -578,7 +621,7 @@ public class Menu extends JFrame{
 					f.setSize(400, 300);
 					f.setLocation(200, 200);
 					f.addWindowListener(new WindowAdapter() {
-						public void windowClosing(WindowEvent we) { System.exit(0); }
+						public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 					});          
 					f.setVisible(true);
 				
@@ -640,6 +683,7 @@ public class Menu extends JFrame{
 								
 								// Use account method for interest update
 								acc.applyInterestPercentage(interest);
+								markDataChanged();
 								
 								JOptionPane.showMessageDialog(f, interest + "% interest applied. \n new balance = " + acc.getBalance() + euro ,"Success!",  JOptionPane.INFORMATION_MESSAGE);
 							}
@@ -726,7 +770,7 @@ public class Menu extends JFrame{
 				f.setSize(400, 300);
 				f.setLocation(200, 200);
 				f.addWindowListener(new WindowAdapter() {
-					public void windowClosing(WindowEvent we) { System.exit(0); }
+					public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 				});       
 				
 				firstNameLabel = new JLabel("First Name:", SwingConstants.LEFT);
@@ -791,6 +835,7 @@ public class Menu extends JFrame{
 						customer.setDOB(dOBTextField.getText());
 						customer.setCustomerID(customerIDTextField.getText());
 						customer.setPassword(passwordTextField.getText());		
+						markDataChanged();
 						
 						JOptionPane.showMessageDialog(null, "Changes Saved.");
 							}		
@@ -1072,6 +1117,7 @@ public class Menu extends JFrame{
 				    	CustomerCurrentAccount current = new CustomerCurrentAccount(atm, number, balance, transactionList);
 				    	
 				    	customer.getAccounts().add(current);
+				    	markDataChanged();
 				    	JOptionPane.showMessageDialog(f, "Account number = " + number +"\n PIN = " + pin  ,"Account created.",  JOptionPane.INFORMATION_MESSAGE);
 				    	
 				    	f.dispose();
@@ -1089,6 +1135,7 @@ public class Menu extends JFrame{
 				    	CustomerDepositAccount deposit = new CustomerDepositAccount(interest, number, balance, transactionList);
 				    	
 				    	customer.getAccounts().add(deposit);
+				    	markDataChanged();
 				    	JOptionPane.showMessageDialog(f, "Account number = " + number ,"Account created.",  JOptionPane.INFORMATION_MESSAGE);
 				    	
 				    	f.dispose();
@@ -1150,6 +1197,7 @@ public class Menu extends JFrame{
 						    	else
 						    	{
 						    		customerList.remove(customer);
+						    		markDataChanged();
 						    		JOptionPane.showMessageDialog(f, "Customer Deleted " ,"Success.",  JOptionPane.INFORMATION_MESSAGE);
 						    	}
 						    }
@@ -1218,7 +1266,7 @@ public class Menu extends JFrame{
 		f.setSize(400, 300);
 		f.setLocation(200, 200);
 		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { System.exit(0); }
+			public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 		});          
 		f.setVisible(true);
 		
@@ -1280,7 +1328,7 @@ public class Menu extends JFrame{
 		f.setSize(400, 300);
 		f.setLocation(200, 200);
 		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { System.exit(0); }
+			public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 		});          
 		f.setVisible(true);
 		
@@ -1321,7 +1369,7 @@ public class Menu extends JFrame{
 				f.setSize(400, 600);
 				f.setLocation(200, 200);
 				f.addWindowListener(new WindowAdapter() {
-					public void windowClosing(WindowEvent we) { System.exit(0); }
+					public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 				});          
 				f.setVisible(true);
 				
@@ -1432,6 +1480,7 @@ public class Menu extends JFrame{
 			String euro = "\u20ac";
 			// Use account method for lodgement and transaction entry
 			acc.lodge(balance);
+			markDataChanged();
 				
 			 JOptionPane.showMessageDialog(f, balance + euro + " added do you account!" ,"Lodgement",  JOptionPane.INFORMATION_MESSAGE);
 			 JOptionPane.showMessageDialog(f, "New balance = " + acc.getBalance() + euro ,"Lodgement",  JOptionPane.INFORMATION_MESSAGE);
@@ -1519,6 +1568,7 @@ public class Menu extends JFrame{
 				String euro = "\u20ac";
 				// Use account method for withdrawal and transaction entry
 				acc.withdraw(withdraw);
+				markDataChanged();
 				 
 				 
 					
@@ -1640,7 +1690,7 @@ public class Menu extends JFrame{
 		f.setSize(850, 500);
 		f.setLocation(200, 200);
 		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { System.exit(0); }
+			public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
 		});
 		f.setVisible(true);
 
@@ -1692,6 +1742,94 @@ public class Menu extends JFrame{
 		pageContent.setLayout(new BorderLayout());
 		pageContent.add(scrollPane, BorderLayout.CENTER);
 		pageContent.add(buttonPanel, BorderLayout.SOUTH);
+	}
+
+	// Mark that in-memory data has changed
+	private void markDataChanged()
+	{
+		hasUnsavedChanges = true;
+	}
+
+	// Open data from a random access file
+	private void openDataFromFile()
+	{
+		JFileChooser chooser = new JFileChooser();
+		int option = chooser.showOpenDialog(f);
+		if(option != JFileChooser.APPROVE_OPTION)
+		{
+			return;
+		}
+
+		File selectedFile = chooser.getSelectedFile();
+		try
+		{
+			customerList = bankFile.open(selectedFile.getAbsolutePath());
+			currentFilePath = selectedFile.getAbsolutePath();
+			hasUnsavedChanges = false;
+			JOptionPane.showMessageDialog(f, "File opened successfully.", "Open", JOptionPane.INFORMATION_MESSAGE);
+		}
+		catch (IOException ex)
+		{
+			JOptionPane.showMessageDialog(f, "Could not open file: " + ex.getMessage(), "Open Error", JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+
+	// Save data to current file path
+	private boolean saveData()
+	{
+		if(currentFilePath == null)
+		{
+			return saveDataAs();
+		}
+		try
+		{
+			bankFile.save(currentFilePath, customerList);
+			hasUnsavedChanges = false;
+			JOptionPane.showMessageDialog(f, "File saved successfully.", "Save", JOptionPane.INFORMATION_MESSAGE);
+			return true;
+		}
+		catch (IOException ex)
+		{
+			JOptionPane.showMessageDialog(f, "Could not save file: " + ex.getMessage(), "Save Error", JOptionPane.INFORMATION_MESSAGE);
+			return false;
+		}
+	}
+
+	// Save data to a chosen file path
+	private boolean saveDataAs()
+	{
+		JFileChooser chooser = new JFileChooser();
+		int option = chooser.showSaveDialog(f);
+		if(option != JFileChooser.APPROVE_OPTION)
+		{
+			return false;
+		}
+
+		File selectedFile = chooser.getSelectedFile();
+		currentFilePath = selectedFile.getAbsolutePath();
+		return saveData();
+	}
+
+	// Ask user to save before exiting the application
+	private void exitApplicationWithSavePrompt()
+	{
+		if(hasUnsavedChanges)
+		{
+			int option = JOptionPane.showConfirmDialog(f, "Save changes before exit?", "Exit Application", JOptionPane.YES_NO_CANCEL_OPTION);
+			if(option == JOptionPane.CANCEL_OPTION)
+			{
+				return;
+			}
+			if(option == JOptionPane.YES_OPTION)
+			{
+				boolean saved = saveData();
+				if(!saved)
+				{
+					return;
+				}
+			}
+		}
+		System.exit(0);
 	}
 
 	public static boolean isNumeric(String str)  // a method that tests if a string is numeric
