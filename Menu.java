@@ -692,12 +692,10 @@ public class Menu extends JFrame{
 			
 				boolean found = false;
 			
-				if(customerList.isEmpty())
+				// Use one shared check before running admin actions
+				if(!hasCustomersForAdminAction())
 				{
-					JOptionPane.showMessageDialog(f, "There are no customers yet!"  ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-					f.dispose();
-					admin();
-					
+					return;
 				}
 				else
 				{
@@ -705,14 +703,11 @@ public class Menu extends JFrame{
 			    while(loop)
 			    {
 			    Object customerID = JOptionPane.showInputDialog(f, "Enter Customer ID:");
-			    
-			    for (Customer aCustomer: customerList){
-			    	
-			    	if(aCustomer.getCustomerID().equals(customerID))
-			    	{
-			    		found = true;
-			    		customer = aCustomer;
-			    	}					    	
+			    // Reuse helper method for customer lookup by ID
+			    customer = findCustomerById(String.valueOf(customerID));
+			    if(customer != null)
+			    {
+			    	found = true;
 			    }
 			    
 			    if(found == false)
@@ -1062,11 +1057,10 @@ public class Menu extends JFrame{
 			public void actionPerformed(ActionEvent ae) {
 				f.dispose();
 				
-				if(customerList.isEmpty())
+				// Use one shared check before running admin actions
+				if(!hasCustomersForAdminAction())
 				{
-					JOptionPane.showMessageDialog(f, "There are no customers yet!"  ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-					f.dispose();
-					admin();
+					return;
 				}
 				else
 				{
@@ -1077,14 +1071,11 @@ public class Menu extends JFrame{
 			    while(loop)
 			    {
 			    Object customerID = JOptionPane.showInputDialog(f, "Customer ID of Customer You Wish to Add an Account to:");
-			    
-			    for (Customer aCustomer: customerList){
-			    	
-			    	if(aCustomer.getCustomerID().equals(customerID))
-			    	{
-			    		found = true;
-			    		customer = aCustomer; 	
-			    	}					    	
+			    // Reuse helper method for customer lookup by ID
+			    customer = findCustomerById(String.valueOf(customerID));
+			    if(customer != null)
+			    {
+			    	found = true;
 			    }
 			    
 			    if(found == false)
@@ -1167,15 +1158,16 @@ public class Menu extends JFrame{
 				{
 					 {
 						    Object customerID = JOptionPane.showInputDialog(f, "Customer ID of Customer You Wish to Delete:");
-						    
-						    for (Customer aCustomer: customerList){
-						    	
-						    	if(aCustomer.getCustomerID().equals(customerID))
-						    	{
-						    		found = true;
-						    		customer = aCustomer; 
-						    		loop = false;
-						    	}					    	
+						    // Reuse helper method for customer lookup by ID
+						    customer = findCustomerById(String.valueOf(customerID));
+						    if(customer != null)
+						    {
+						    	found = true;
+						    	loop = false;
+						    }
+						    else
+						    {
+						    	found = false;
 						    }
 						    
 						    if(found == false)
@@ -1219,15 +1211,16 @@ public class Menu extends JFrame{
 				
 					 {
 						    Object customerID = JOptionPane.showInputDialog(f, "Customer ID of Customer from which you wish to delete an account");
-						    
-						    for (Customer aCustomer: customerList){
-						    	
-						    	if(aCustomer.getCustomerID().equals(customerID))
-						    	{
-						    		found = true;
-						    		customer = aCustomer; 
-						    		loop = false;
-						    	}					    	
+						    // Reuse helper method for customer lookup by ID
+						    customer = findCustomerById(String.valueOf(customerID));
+						    if(customer != null)
+						    {
+						    	found = true;
+						    	loop = false;
+						    }
+						    else
+						    {
+						    	found = false;
 						    }
 						    
 						    if(found == false)
