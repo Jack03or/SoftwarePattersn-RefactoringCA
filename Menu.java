@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -374,6 +375,16 @@ public class Menu extends JFrame{
 		JButton summaryButton = new JButton("Display Summary Of All Accounts");
 		summaryPanel.add(summaryButton);
 		summaryButton.setPreferredSize(new Dimension(250, 20));
+
+		JPanel findAccountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton findAccountButton = new JButton("Find By Account Number");
+		findAccountPanel.add(findAccountButton);
+		findAccountButton.setPreferredSize(new Dimension(250, 20));
+
+		JPanel findSurnamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton findSurnameButton = new JButton("Find By Surname");
+		findSurnamePanel.add(findSurnameButton);
+		findSurnameButton.setPreferredSize(new Dimension(250, 20));
 		
 		JPanel accountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton accountButton = new JButton("Add an Account to a Customer");
@@ -387,11 +398,13 @@ public class Menu extends JFrame{
 		JLabel label1 = new JLabel("Please select an option");
 		
 		content = f.getContentPane();
-		content.setLayout(new GridLayout(9, 1));
+		content.setLayout(new GridLayout(11, 1));
 		content.add(label1);
 		content.add(accountPanel);
 		content.add(bankChargesPanel);
 		content.add(interestPanel);
+		content.add(findAccountPanel);
+		content.add(findSurnamePanel);
 		content.add(editCustomerPanel);
 		content.add(navigatePanel);
 		content.add(summaryPanel);	
@@ -795,71 +808,64 @@ public class Menu extends JFrame{
 		
 		summaryButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
-				f.dispose();
-				
-				
-				f = new JFrame("Summary of Transactions");
-				f.setSize(400, 700);
-				f.setLocation(200, 200);
-				f.addWindowListener(new WindowAdapter() {
-					public void windowClosing(WindowEvent we) { System.exit(0); }
-				});          
-				f.setVisible(true);
-				
-				JLabel label1 = new JLabel("Summary of all transactions: ");
-				
-				JPanel returnPanel = new JPanel();
-				JButton returnButton = new JButton("Return");
-				returnPanel.add(returnButton);
-				
-				JPanel textPanel = new JPanel();
-				
-				textPanel.setLayout( new BorderLayout() );
-				JTextArea textArea = new JTextArea(40, 20);
-				textArea.setEditable(false);
-				textPanel.add(label1, BorderLayout.NORTH);
-				textPanel.add(textArea, BorderLayout.CENTER);
-				textPanel.add(returnButton, BorderLayout.SOUTH);
-				
-				JScrollPane scrollPane = new JScrollPane(textArea);
-				textPanel.add(scrollPane);
-				
-			for (int a = 0; a < customerList.size(); a++)//For each customer, for each account, it displays each transaction.
-				{
-					for (int b = 0; b < customerList.get(a).getAccounts().size(); b ++ )
-					{
-						acc = customerList.get(a).getAccounts().get(b);
-						for (int c = 0; c < customerList.get(a).getAccounts().get(b).getTransactionList().size(); c++)
-						{
-							
-							textArea.append(acc.getTransactionList().get(c).toString());
-							//Int total = acc.getTransactionList().get(c).getAmount(); //I was going to use this to keep a running total but I couldnt get it  working.
-							
-						}				
-					}				
-				}
-				
-				
-				
-				
-				textPanel.add(textArea);
-				content.removeAll();
-				
-				
-				Container content = f.getContentPane();
-				content.setLayout(new GridLayout(1, 1));
-			//	content.add(label1);
-				content.add(textPanel);
-				//content.add(returnPanel);
-				
-				returnButton.addActionListener(new ActionListener(  ) {
-					public void actionPerformed(ActionEvent ae) {
-						f.dispose();			
-					admin();				
-					}		
-			     });	
+				// Show all accounts in a sortable non-editable table
+				showAllAccountsTable();
 			}	
 	     });
+
+		findAccountButton.addActionListener(new ActionListener(  ) {
+			public void actionPerformed(ActionEvent ae) {
+				String accountNumber = JOptionPane.showInputDialog(f, "Enter Account Number:");
+				if(accountNumber == null || accountNumber.trim().length() == 0)
+				{
+					return;
+				}
+				Customer owner = findCustomerByAccountNumber(accountNumber.trim());
+				CustomerAccount account = findAnyAccountByNumber(accountNumber.trim());
+				if(account == null || owner == null)
+				{
+					JOptionPane.showMessageDialog(f, "Account not found." ,"Find Account",  JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+				String accountType = "Current";
+				if(account instanceof CustomerDepositAccount)
+				{
+					accountType = "Deposit";
+				}
+				JOptionPane.showMessageDialog(f,
+						"Account Number = " + account.getNumber()
+						+ "\nType = " + accountType
+						+ "\nBalance = " + account.getBalance()
+						+ "\nCustomer ID = " + owner.getCustomerID()
+						+ "\nSurname = " + owner.getSurname()
+						+ "\nFirst Name = " + owner.getFirstName(),
+						"Find Account", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+
+		findSurnameButton.addActionListener(new ActionListener(  ) {
+			public void actionPerformed(ActionEvent ae) {
+				String surname = JOptionPane.showInputDialog(f, "Enter Surname:");
+				if(surname == null || surname.trim().length() == 0)
+				{
+					return;
+				}
+				ArrayList<Customer> matches = findCustomersBySurname(surname.trim());
+				if(matches.isEmpty())
+				{
+					JOptionPane.showMessageDialog(f, "No customers found for that surname." ,"Find Surname",  JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+				String message = "";
+				for(Customer matchedCustomer : matches)
+				{
+					message = message + "Customer ID = " + matchedCustomer.getCustomerID()
+						+ ", Name = " + matchedCustomer.getFirstName() + " " + matchedCustomer.getSurname()
+						+ ", Accounts = " + matchedCustomer.getAccounts().size() + "\n";
+				}
+				JOptionPane.showMessageDialog(f, message, "Find Surname", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
 		
 		navigateButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
@@ -1582,6 +1588,110 @@ public class Menu extends JFrame{
 			}
 		}
 		return null;
+	}
+
+	// Find customers with matching surname
+	private ArrayList<Customer> findCustomersBySurname(String surname)
+	{
+		ArrayList<Customer> matches = new ArrayList<Customer>();
+		for (Customer currentCustomer : customerList)
+		{
+			if(currentCustomer.getSurname().equalsIgnoreCase(surname))
+			{
+				matches.add(currentCustomer);
+			}
+		}
+		return matches;
+	}
+
+	// Find any account in the whole bank by account number
+	private CustomerAccount findAnyAccountByNumber(String accountNumber)
+	{
+		for (Customer currentCustomer : customerList)
+		{
+			CustomerAccount account = findAccountByNumber(currentCustomer.getAccounts(), accountNumber);
+			if(account != null)
+			{
+				return account;
+			}
+		}
+		return null;
+	}
+
+	// Find the customer who owns an account number
+	private Customer findCustomerByAccountNumber(String accountNumber)
+	{
+		for (Customer currentCustomer : customerList)
+		{
+			CustomerAccount account = findAccountByNumber(currentCustomer.getAccounts(), accountNumber);
+			if(account != null)
+			{
+				return currentCustomer;
+			}
+		}
+		return null;
+	}
+
+	// Show all accounts in a sortable and non-editable table
+	private void showAllAccountsTable()
+	{
+		f.dispose();
+		f = new JFrame("All Accounts");
+		f.setSize(850, 500);
+		f.setLocation(200, 200);
+		f.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) { System.exit(0); }
+		});
+		f.setVisible(true);
+
+		String[] columns = {"Account Number", "Account Type", "Customer ID", "Surname", "First Name", "Balance"};
+		DefaultTableModel model = new DefaultTableModel(columns, 0) {
+			public boolean isCellEditable(int row, int column)
+			{
+				return false;
+			}
+		};
+
+		for (Customer currentCustomer : customerList)
+		{
+			for (CustomerAccount account : currentCustomer.getAccounts())
+			{
+				String accountType = "Current";
+				if(account instanceof CustomerDepositAccount)
+				{
+					accountType = "Deposit";
+				}
+				Object[] row = {
+						account.getNumber(),
+						accountType,
+						currentCustomer.getCustomerID(),
+						currentCustomer.getSurname(),
+						currentCustomer.getFirstName(),
+						account.getBalance()
+				};
+				model.addRow(row);
+			}
+		}
+
+		JTable table = new JTable(model);
+		table.setAutoCreateRowSorter(true);
+		JScrollPane scrollPane = new JScrollPane(table);
+
+		JButton returnButton = new JButton("Return");
+		returnButton.addActionListener(new ActionListener(  ) {
+			public void actionPerformed(ActionEvent ae) {
+				f.dispose();
+				admin();
+			}
+		});
+
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.add(returnButton);
+
+		Container pageContent = f.getContentPane();
+		pageContent.setLayout(new BorderLayout());
+		pageContent.add(scrollPane, BorderLayout.CENTER);
+		pageContent.add(buttonPanel, BorderLayout.SOUTH);
 	}
 
 	public static boolean isNumeric(String str)  // a method that tests if a string is numeric
