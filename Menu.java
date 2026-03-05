@@ -492,26 +492,10 @@ public class Menu extends JFrame{
 					continueButton.addActionListener(new ActionListener(  ) {
 						public void actionPerformed(ActionEvent ae) {
 							String euro = "\u20ac";
-						 	
-							
-							if(acc instanceof CustomerDepositAccount)
-							{
-							
-							
-							JOptionPane.showMessageDialog(f, "25" + euro + " deposit account fee aplied."  ,"",  JOptionPane.INFORMATION_MESSAGE);
-							acc.setBalance(acc.getBalance()-25);
+						 	// Use account type behaviour for admin charge
+							acc.applyAdminCharge();
+							JOptionPane.showMessageDialog(f, acc.getAdminChargeDisplayAmount() + euro + " account fee aplied."  ,"",  JOptionPane.INFORMATION_MESSAGE);
 							JOptionPane.showMessageDialog(f, "New balance = " + acc.getBalance() ,"Success!",  JOptionPane.INFORMATION_MESSAGE);
-							}
-
-							if(acc instanceof CustomerCurrentAccount)
-							{
-							
-							
-							JOptionPane.showMessageDialog(f, "15" + euro + " current account fee aplied."  ,"",  JOptionPane.INFORMATION_MESSAGE);
-							acc.setBalance(acc.getBalance()-25);
-							JOptionPane.showMessageDialog(f, "New balance = " + acc.getBalance() ,"Success!",  JOptionPane.INFORMATION_MESSAGE);
-							}
-							
 							
 							f.dispose();				
 						admin();				
@@ -641,7 +625,8 @@ public class Menu extends JFrame{
 								interest = Double.parseDouble(interestString);
 								loop = false;
 								
-								acc.setBalance(acc.getBalance() + (acc.getBalance() * (interest/100)));
+								// Use account method for interest update
+								acc.applyInterestPercentage(interest);
 								
 								JOptionPane.showMessageDialog(f, interest + "% interest applied. \n new balance = " + acc.getBalance() + euro ,"Success!",  JOptionPane.INFORMATION_MESSAGE);
 							}
@@ -761,12 +746,8 @@ public class Menu extends JFrame{
 				textPanel.add(passwordLabel);
 				textPanel.add(passwordTextField);
 
-				firstNameTextField.setText(customer.getFirstName());
-				surnameTextField.setText(customer.getSurname());
-				pPSTextField.setText(customer.getPPS());
-				dOBTextField.setText(customer.getDOB());
-				customerIDTextField.setText(customer.getCustomerID());
-				passwordTextField.setText(customer.getPassword());	
+				// Reuse helper method to fill customer details in text fields
+				populateCustomerDetailsFields(customer);
 				
 				//JLabel label1 = new JLabel("Edit customer details below. The save");
 				
@@ -922,12 +903,8 @@ public class Menu extends JFrame{
 				last = new JButton("Last");
 				cancel = new JButton("Cancel");
 				
-				firstNameTextField.setText(customerList.get(0).getFirstName());
-				surnameTextField.setText(customerList.get(0).getSurname());
-				pPSTextField.setText(customerList.get(0).getPPS());
-				dOBTextField.setText(customerList.get(0).getDOB());
-				customerIDTextField.setText(customerList.get(0).getCustomerID());
-				passwordTextField.setText(customerList.get(0).getPassword());
+				// Reuse helper method to fill customer details in text fields
+				populateCustomerDetailsFields(customerList.get(0));
 				
 				firstNameTextField.setEditable(false);
 				surnameTextField.setEditable(false);
@@ -962,12 +939,8 @@ public class Menu extends JFrame{
 				first.addActionListener(new ActionListener(  ) {
 					public void actionPerformed(ActionEvent ae) {
 						position = 0;
-						firstNameTextField.setText(customerList.get(0).getFirstName());
-						surnameTextField.setText(customerList.get(0).getSurname());
-						pPSTextField.setText(customerList.get(0).getPPS());
-						dOBTextField.setText(customerList.get(0).getDOB());
-						customerIDTextField.setText(customerList.get(0).getCustomerID());
-						passwordTextField.setText(customerList.get(0).getPassword());				
+						// Reuse helper method to fill customer details in text fields
+						populateCustomerDetailsFields(customerList.get(0));			
 							}		
 					     });
 				
@@ -982,12 +955,8 @@ public class Menu extends JFrame{
 						{
 							position = position - 1;
 							
-						firstNameTextField.setText(customerList.get(position).getFirstName());
-						surnameTextField.setText(customerList.get(position).getSurname());
-						pPSTextField.setText(customerList.get(position).getPPS());
-						dOBTextField.setText(customerList.get(position).getDOB());
-						customerIDTextField.setText(customerList.get(position).getCustomerID());
-						passwordTextField.setText(customerList.get(position).getPassword());
+						// Reuse helper method to fill customer details in text fields
+						populateCustomerDetailsFields(customerList.get(position));
 						}			
 							}		
 					     });
@@ -1003,12 +972,8 @@ public class Menu extends JFrame{
 						{
 							position = position + 1;
 							
-						firstNameTextField.setText(customerList.get(position).getFirstName());
-						surnameTextField.setText(customerList.get(position).getSurname());
-						pPSTextField.setText(customerList.get(position).getPPS());
-						dOBTextField.setText(customerList.get(position).getDOB());
-						customerIDTextField.setText(customerList.get(position).getCustomerID());
-						passwordTextField.setText(customerList.get(position).getPassword());
+						// Reuse helper method to fill customer details in text fields
+						populateCustomerDetailsFields(customerList.get(position));
 						}		
 						
 						
@@ -1021,12 +986,8 @@ public class Menu extends JFrame{
 					
 						position = customerList.size() - 1;
 				
-						firstNameTextField.setText(customerList.get(position).getFirstName());
-						surnameTextField.setText(customerList.get(position).getSurname());
-						pPSTextField.setText(customerList.get(position).getPPS());
-						dOBTextField.setText(customerList.get(position).getDOB());
-						customerIDTextField.setText(customerList.get(position).getCustomerID());
-						passwordTextField.setText(customerList.get(position).getPassword());								
+						// Reuse helper method to fill customer details in text fields
+						populateCustomerDetailsFields(customerList.get(position));							
 							}		
 					     });
 				
@@ -1463,18 +1424,8 @@ public class Menu extends JFrame{
 				
 			
 			String euro = "\u20ac";
-			 acc.setBalance(acc.getBalance() + balance);
-			// String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-			 Date date = new Date();
-			 String date2 = date.toString();
-			 String type = "Lodgement";
-				double amount = balance;
-				
-				
-				
-				
-				AccountTransaction transaction = new AccountTransaction(date2, type, amount);
-				acc.getTransactionList().add(transaction);
+			// Use account method for lodgement and transaction entry
+			acc.lodge(balance);
 				
 			 JOptionPane.showMessageDialog(f, balance + euro + " added do you account!" ,"Lodgement",  JOptionPane.INFORMATION_MESSAGE);
 			 JOptionPane.showMessageDialog(f, "New balance = " + acc.getBalance() + euro ,"Lodgement",  JOptionPane.INFORMATION_MESSAGE);
@@ -1553,25 +1504,15 @@ public class Menu extends JFrame{
 						JOptionPane.showMessageDialog(f, "500 is the maximum you can withdraw at a time." ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
 						withdraw = 0;
 					}
-					if(withdraw > acc.getBalance())
+					if(!acc.canWithdraw(withdraw))
 					{
 						JOptionPane.showMessageDialog(f, "Insufficient funds." ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
 						withdraw = 0;					
 					}
 				
 				String euro = "\u20ac";
-				 acc.setBalance(acc.getBalance()-withdraw);
-				   //recording transaction:
-			//		String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-				 Date date = new Date();
-				 String date2 = date.toString();
-				 
-				 String type = "Withdraw";
-					double amount = withdraw;
-					
-		
-					AccountTransaction transaction = new AccountTransaction(date2, type, amount);
-					acc.getTransactionList().add(transaction);
+				// Use account method for withdrawal and transaction entry
+				acc.withdraw(withdraw);
 				 
 				 
 					
@@ -1617,6 +1558,17 @@ public class Menu extends JFrame{
 			}
 		}
 		return null;
+	}
+
+	// Fill the customer text fields with one customer's details
+	private void populateCustomerDetailsFields(Customer selectedCustomer)
+	{
+		firstNameTextField.setText(selectedCustomer.getFirstName());
+		surnameTextField.setText(selectedCustomer.getSurname());
+		pPSTextField.setText(selectedCustomer.getPPS());
+		dOBTextField.setText(selectedCustomer.getDOB());
+		customerIDTextField.setText(selectedCustomer.getCustomerID());
+		passwordTextField.setText(selectedCustomer.getPassword());
 	}
 
 	// Find an account in a list using the account number

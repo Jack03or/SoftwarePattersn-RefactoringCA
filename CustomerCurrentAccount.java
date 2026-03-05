@@ -27,4 +27,16 @@ public void setAtm(ATMCard atm)
 	this.atm = atm;
 }
 
+	// Current account shows 15 euro in the admin fee message
+	public String getAdminChargeDisplayAmount()
+	{
+		return "15";
+	}
+
+	// Keep current behavior for amount deducted
+	public double getAdminChargeAppliedAmount()
+	{
+		return 25;
+	}
+
 }
