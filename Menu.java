@@ -127,53 +127,34 @@ public class Menu extends JFrame{
 							
 							 add.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent e) {
-							
-									
-						PPS = pPSTextField.getText();
-						firstName = firstNameTextField.getText();
-						surname = surnameTextField.getText();
-						DOB = dOBTextField.getText();
-						password = "";
-					
-						CustomerID = "ID"+PPS ;
-						
-					
-						
-						
-						
-						
-						add.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-								f1.dispose();
-								
-								boolean loop = true;
-								while(loop){
-								 password = JOptionPane.showInputDialog(f, "Enter 7 character Password;");
-								
-								 if(password.length() != 7)//Making sure password is 7 characters
-								    {
-								    	JOptionPane.showMessageDialog(null, null, "Password must be 7 charatcers long", JOptionPane.OK_OPTION);
-								    }
-								 else
-								 {
-									 loop = false;
-								 }
-								}
-								
-								
-								
-								
-							    ArrayList<CustomerAccount> accounts = new ArrayList<CustomerAccount> ();
-										Customer customer = new Customer(PPS, surname, firstName, DOB, CustomerID, password, accounts);
-											
-										customerList.add(customer);
-										markDataChanged();
-									
-										JOptionPane.showMessageDialog(f, "CustomerID = " + CustomerID +"\n Password = " + password  ,"Customer created.",  JOptionPane.INFORMATION_MESSAGE);
-										menuStart();
-									f.dispose();
-							}
-						});	
+									PPS = pPSTextField.getText();
+									firstName = firstNameTextField.getText();
+									surname = surnameTextField.getText();
+									DOB = dOBTextField.getText();
+									password = "";
+									CustomerID = "ID" + PPS;
+
+									boolean loop = true;
+									while(loop){
+										password = JOptionPane.showInputDialog(f, "Enter 7 character Password;");
+										if(password.length() != 7)//Making sure password is 7 characters
+										{
+											JOptionPane.showMessageDialog(null, null, "Password must be 7 charatcers long", JOptionPane.OK_OPTION);
+										}
+										else
+										{
+											loop = false;
+										}
+									}
+
+									ArrayList<CustomerAccount> accounts = new ArrayList<CustomerAccount> ();
+									Customer customer = new Customer(PPS, surname, firstName, DOB, CustomerID, password, accounts);
+									customerList.add(customer);
+									markDataChanged();
+
+									JOptionPane.showMessageDialog(f, "CustomerID = " + CustomerID +"\n Password = " + password  ,"Customer created.",  JOptionPane.INFORMATION_MESSAGE);
+									f1.dispose();
+									menuStart();
 								}
 							});						
 							JButton cancel = new JButton("Cancel");					
@@ -214,7 +195,7 @@ public class Menu extends JFrame{
 					    	}
 					    	else if(reply == JOptionPane.NO_OPTION)
 					    	{
-					    		f1.dispose();
+					    		f.dispose();
 					    		loop = false;
 					    		loop2 = false;
 					    		menuStart();
@@ -237,7 +218,7 @@ public class Menu extends JFrame{
 							    		
 							    	}
 							    	else if(reply == JOptionPane.NO_OPTION){
-							    		f1.dispose();
+							    		f.dispose();
 							    		loop2 = false;
 							    		menuStart();
 							    	}
@@ -251,7 +232,7 @@ public class Menu extends JFrame{
 					    	
 					    if(cont)
 					    {
-						f1.dispose();
+						f.dispose();
 					    	loop = false;
 					    admin();					    
 					    }					    
@@ -366,6 +347,16 @@ public class Menu extends JFrame{
 		JButton interestButton = new JButton("Apply Interest");
 		interestPanel.add(interestButton);
 		interestButton.setPreferredSize(new Dimension(250, 20));
+
+		JPanel setOverdraftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton setOverdraftButton = new JButton("Set Overdraft");
+		setOverdraftPanel.add(setOverdraftButton);
+		setOverdraftButton.setPreferredSize(new Dimension(250, 20));
+
+		JPanel calculateInterestPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton calculateInterestButton = new JButton("Calculate Interest (All Deposit)");
+		calculateInterestPanel.add(calculateInterestButton);
+		calculateInterestButton.setPreferredSize(new Dimension(250, 20));
 		
 		JPanel editCustomerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton editCustomerButton = new JButton("Edit existing Customer");
@@ -419,7 +410,7 @@ public class Menu extends JFrame{
 		JLabel label1 = new JLabel("Please select an option");
 		
 		content = f.getContentPane();
-		content.setLayout(new GridLayout(14, 1));
+		content.setLayout(new GridLayout(16, 1));
 		content.add(label1);
 		content.add(openPanel);
 		content.add(savePanel);
@@ -427,6 +418,8 @@ public class Menu extends JFrame{
 		content.add(accountPanel);
 		content.add(bankChargesPanel);
 		content.add(interestPanel);
+		content.add(setOverdraftPanel);
+		content.add(calculateInterestPanel);
 		content.add(findAccountPanel);
 		content.add(findSurnamePanel);
 		content.add(editCustomerPanel);
@@ -451,6 +444,18 @@ public class Menu extends JFrame{
 		saveAsButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
 				saveDataAs();
+			}
+		});
+
+		setOverdraftButton.addActionListener(new ActionListener(  ) {
+			public void actionPerformed(ActionEvent ae) {
+				setOverdraftForCurrentAccount();
+			}
+		});
+
+		calculateInterestButton.addActionListener(new ActionListener(  ) {
+			public void actionPerformed(ActionEvent ae) {
+				calculateInterestForAllDepositAccounts();
 			}
 		});
 		
@@ -671,6 +676,10 @@ public class Menu extends JFrame{
 							String euro = "\u20ac";
 						 	// Reuse helper method for numeric input with retry
 							Double interestValue = promptForNumericInputWithRetry("Enter interest percentage you wish to apply: \n NOTE: Please enter a numerical value. (with no percentage sign) \n E.g: If you wish to apply 8% interest, enter '8'");
+							if(interestValue == null)
+							{
+								return;
+							}
 							double interest = interestValue.doubleValue();
 							// Use account method for interest update
 							acc.applyInterestPercentage(interest);
@@ -852,11 +861,7 @@ public class Menu extends JFrame{
 					JOptionPane.showMessageDialog(f, "Account not found." ,"Find Account",  JOptionPane.INFORMATION_MESSAGE);
 					return;
 				}
-				String accountType = "Current";
-				if(account instanceof CustomerDepositAccount)
-				{
-					accountType = "Deposit";
-				}
+				String accountType = account.getAccountType();
 				JOptionPane.showMessageDialog(f,
 						"Account Number = " + account.getNumber()
 						+ "\nType = " + accountType
@@ -1242,7 +1247,7 @@ public class Menu extends JFrame{
 	public void customer(Customer e1)
 	{	
 		f = new JFrame("Customer Menu");
-		e1 = e;
+		e = e1;
 		f.setSize(400, 300);
 		f.setLocation(200, 200);
 		f.addWindowListener(new WindowAdapter() {
@@ -1410,14 +1415,11 @@ public class Menu extends JFrame{
 					{
 				// Reuse helper method for numeric input
 				Double balanceValue = promptForNumericInputOnce("Enter amount you wish to lodge:");
-				if(balanceValue != null)
+				if(balanceValue == null)
 				{
-					balance = balanceValue.doubleValue();
+					return;
 				}
-				else
-				{
-					balance = 0;
-				}
+				balance = balanceValue.doubleValue();
 				
 			
 			String euro = "\u20ac";
@@ -1446,14 +1448,11 @@ public class Menu extends JFrame{
 						{
 					// Reuse helper method for numeric input
 					Double withdrawValue = promptForNumericInputOnce("Enter amount you wish to withdraw (max 500):");
-					if(withdrawValue != null)
+					if(withdrawValue == null)
 					{
-						withdraw = withdrawValue.doubleValue();
+						return;
 					}
-					else
-					{
-						withdraw = 0;
-					}
+					withdraw = withdrawValue.doubleValue();
 					if(withdraw > 500)
 					{
 						JOptionPane.showMessageDialog(f, "500 is the maximum you can withdraw at a time." ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
@@ -1530,9 +1529,14 @@ public class Menu extends JFrame{
 	// Find an account in a list using the account number
 	private CustomerAccount findAccountByNumber(ArrayList<CustomerAccount> accounts, String accountNumber)
 	{
+		String targetAccountNumber = "";
+		if(accountNumber != null)
+		{
+			targetAccountNumber = accountNumber.trim();
+		}
 		for (CustomerAccount account : accounts)
 		{
-			if(account.getNumber().equals(accountNumber))
+			if(account.getNumber() != null && account.getNumber().trim().equalsIgnoreCase(targetAccountNumber))
 			{
 				return account;
 			}
@@ -1606,14 +1610,9 @@ public class Menu extends JFrame{
 		{
 			for (CustomerAccount account : currentCustomer.getAccounts())
 			{
-				String accountType = "Current";
-				if(account instanceof CustomerDepositAccount)
-				{
-					accountType = "Deposit";
-				}
 				Object[] row = {
 						account.getNumber(),
-						accountType,
+						account.getAccountType(),
 						currentCustomer.getCustomerID(),
 						currentCustomer.getSurname(),
 						currentCustomer.getFirstName(),
@@ -1655,6 +1654,112 @@ public class Menu extends JFrame{
 			return false;
 		}
 		return true;
+	}
+
+	// Set overdraft limit for a selected current account
+	private void setOverdraftForCurrentAccount()
+	{
+		if(!hasCustomersForAdminAction())
+		{
+			return;
+		}
+
+		String customerID = JOptionPane.showInputDialog(f, "Customer ID of Customer You Wish to Set Overdraft For:");
+		if(customerID == null || customerID.trim().length() == 0)
+		{
+			return;
+		}
+
+		Customer selectedCustomer = findCustomerById(customerID.trim());
+		if(selectedCustomer == null)
+		{
+			JOptionPane.showMessageDialog(f, "Customer not found." ,"Set Overdraft",  JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		ArrayList<String> currentAccountNumbers = new ArrayList<String>();
+		for(CustomerAccount account : selectedCustomer.getAccounts())
+		{
+			if(account instanceof CustomerCurrentAccount)
+			{
+				currentAccountNumbers.add(account.getNumber());
+			}
+		}
+
+		if(currentAccountNumbers.isEmpty())
+		{
+			JOptionPane.showMessageDialog(f, "This customer has no current accounts." ,"Set Overdraft",  JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		String selectedAccountNumber = (String) JOptionPane.showInputDialog(
+				f,
+				"Select current account:",
+				"Set Overdraft",
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				currentAccountNumbers.toArray(),
+				currentAccountNumbers.get(0));
+		if(selectedAccountNumber == null)
+		{
+			return;
+		}
+
+		CustomerAccount selectedAccount = findAccountByNumber(selectedCustomer.getAccounts(), selectedAccountNumber);
+		if(!(selectedAccount instanceof CustomerCurrentAccount))
+		{
+			JOptionPane.showMessageDialog(f, "Selected account is not a current account." ,"Set Overdraft",  JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		Double overdraftValue = promptForNumericInputOnce("Enter overdraft limit:");
+		if(overdraftValue == null)
+		{
+			return;
+		}
+
+		((CustomerCurrentAccount) selectedAccount).setOverdraftLimit(overdraftValue.doubleValue());
+		markDataChanged();
+		JOptionPane.showMessageDialog(f, "Overdraft set to " + overdraftValue + " for account " + selectedAccount.getNumber(), "Set Overdraft", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	// Calculate interest for all deposit accounts
+	private void calculateInterestForAllDepositAccounts()
+	{
+		if(!hasCustomersForAdminAction())
+		{
+			return;
+		}
+
+		Double interestValue = promptForNumericInputOnce("Enter interest percentage to apply to all deposit accounts:");
+		if(interestValue == null)
+		{
+			return;
+		}
+
+		int updatedAccounts = 0;
+		for(Customer selectedCustomer : customerList)
+		{
+			for(CustomerAccount account : selectedCustomer.getAccounts())
+			{
+				if(account instanceof CustomerDepositAccount)
+				{
+					CustomerDepositAccount depositAccount = (CustomerDepositAccount) account;
+					depositAccount.setInterestRate(interestValue.doubleValue());
+					depositAccount.applyInterestPercentage(interestValue.doubleValue());
+					updatedAccounts++;
+				}
+			}
+		}
+
+		if(updatedAccounts == 0)
+		{
+			JOptionPane.showMessageDialog(f, "No deposit accounts found." ,"Calculate Interest",  JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		markDataChanged();
+		JOptionPane.showMessageDialog(f, "Interest applied to " + updatedAccounts + " deposit account(s).", "Calculate Interest", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	// Mark that in-memory data has changed
@@ -1749,6 +1854,10 @@ public class Menu extends JFrame{
 	private Double promptForNumericInputOnce(String message)
 	{
 		String input = JOptionPane.showInputDialog(f, message);
+		if(input == null)
+		{
+			return null;
+		}
 		if(isNumeric(input))
 		{
 			return Double.valueOf(input);
@@ -1764,6 +1873,10 @@ public class Menu extends JFrame{
 		while(loop)
 		{
 			String input = JOptionPane.showInputDialog(f, message);
+			if(input == null)
+			{
+				return null;
+			}
 			if(isNumeric(input))
 			{
 				return Double.valueOf(input);

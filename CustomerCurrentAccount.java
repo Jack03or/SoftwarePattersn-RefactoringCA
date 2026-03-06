@@ -58,6 +58,15 @@ public void setAtm(ATMCard atm)
 		while(count > 0)
 		{
 			String pinText = JOptionPane.showInputDialog(frame, "Enter 4 digit PIN;");
+			if(pinText == null)
+			{
+				return false;
+			}
+			if(!pinText.matches("\\d{4}"))
+			{
+				JOptionPane.showMessageDialog(frame, "PIN must be 4 digits." ,  "Pin", JOptionPane.INFORMATION_MESSAGE);
+				continue;
+			}
 			int pin = Integer.parseInt(pinText);
 			if(isPinCorrect(pin))
 			{
