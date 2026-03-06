@@ -669,33 +669,13 @@ public class Menu extends JFrame{
 					continueButton.addActionListener(new ActionListener(  ) {
 						public void actionPerformed(ActionEvent ae) {
 							String euro = "\u20ac";
-						 	double interest = 0;
-						 	boolean loop = true;
-						 	
-						 	while(loop)
-						 	{
-							String interestString = JOptionPane.showInputDialog(f, "Enter interest percentage you wish to apply: \n NOTE: Please enter a numerical value. (with no percentage sign) \n E.g: If you wish to apply 8% interest, enter '8'");//the isNumeric method tests to see if the string entered was numeric. 
-							if(isNumeric(interestString))
-							{
-								
-								interest = Double.parseDouble(interestString);
-								loop = false;
-								
-								// Use account method for interest update
-								acc.applyInterestPercentage(interest);
-								markDataChanged();
-								
-								JOptionPane.showMessageDialog(f, interest + "% interest applied. \n new balance = " + acc.getBalance() + euro ,"Success!",  JOptionPane.INFORMATION_MESSAGE);
-							}
-								
-							
-							else
-							{
-								JOptionPane.showMessageDialog(f, "You must enter a numerical value!" ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-							}
-							
-							
-						 	}
+						 	// Reuse helper method for numeric input with retry
+							Double interestValue = promptForNumericInputWithRetry("Enter interest percentage you wish to apply: \n NOTE: Please enter a numerical value. (with no percentage sign) \n E.g: If you wish to apply 8% interest, enter '8'");
+							double interest = interestValue.doubleValue();
+							// Use account method for interest update
+							acc.applyInterestPercentage(interest);
+							markDataChanged();
+							JOptionPane.showMessageDialog(f, interest + "% interest applied. \n new balance = " + acc.getBalance() + euro ,"Success!",  JOptionPane.INFORMATION_MESSAGE);
 							
 							f.dispose();				
 						admin();				
@@ -1428,18 +1408,15 @@ public class Menu extends JFrame{
 				on = verifyCurrentAccountPin(e);
 			}		if(on == true)
 					{
-				String balanceTest = JOptionPane.showInputDialog(f, "Enter amount you wish to lodge:");//the isNumeric method tests to see if the string entered was numeric. 
-				if(isNumeric(balanceTest))
+				// Reuse helper method for numeric input
+				Double balanceValue = promptForNumericInputOnce("Enter amount you wish to lodge:");
+				if(balanceValue != null)
 				{
-					
-					balance = Double.parseDouble(balanceTest);
-					loop = false;
-					
-					
+					balance = balanceValue.doubleValue();
 				}
 				else
 				{
-					JOptionPane.showMessageDialog(f, "You must enter a numerical value!" ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
+					balance = 0;
 				}
 				
 			
@@ -1467,19 +1444,15 @@ public class Menu extends JFrame{
 					on = verifyCurrentAccountPin(e);
 				}		if(on == true)
 						{
-					String balanceTest = JOptionPane.showInputDialog(f, "Enter amount you wish to withdraw (max 500):");//the isNumeric method tests to see if the string entered was numeric. 
-					if(isNumeric(balanceTest))
+					// Reuse helper method for numeric input
+					Double withdrawValue = promptForNumericInputOnce("Enter amount you wish to withdraw (max 500):");
+					if(withdrawValue != null)
 					{
-						
-						withdraw = Double.parseDouble(balanceTest);
-						loop = false;
-						
-						
-						
+						withdraw = withdrawValue.doubleValue();
 					}
 					else
 					{
-						JOptionPane.showMessageDialog(f, "You must enter a numerical value!" ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
+						withdraw = 0;
 					}
 					if(withdraw > 500)
 					{
@@ -1770,6 +1743,34 @@ public class Menu extends JFrame{
 			}
 		}
 		System.exit(0);
+	}
+
+	// Prompt once for a numeric value
+	private Double promptForNumericInputOnce(String message)
+	{
+		String input = JOptionPane.showInputDialog(f, message);
+		if(isNumeric(input))
+		{
+			return Double.valueOf(input);
+		}
+		JOptionPane.showMessageDialog(f, "You must enter a numerical value!" ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
+		return null;
+	}
+
+	// Prompt until a numeric value is entered
+	private Double promptForNumericInputWithRetry(String message)
+	{
+		boolean loop = true;
+		while(loop)
+		{
+			String input = JOptionPane.showInputDialog(f, message);
+			if(isNumeric(input))
+			{
+				return Double.valueOf(input);
+			}
+			JOptionPane.showMessageDialog(f, "You must enter a numerical value!" ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
+		}
+		return 0.0;
 	}
 
 	public static boolean isNumeric(String str)  // a method that tests if a string is numeric
