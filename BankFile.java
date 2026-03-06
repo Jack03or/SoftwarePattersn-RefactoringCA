@@ -96,7 +96,7 @@ public class BankFile {
 				}
 				else
 				{
-					account = new CustomerCurrentAccount(new ATMCard(0000, true), record.accountNumber, record.balance, new ArrayList<AccountTransaction>());
+					account = new CustomerCurrentAccount(new ATMCard(0000, true), record.accountNumber, record.balance, record.overdraft, new ArrayList<AccountTransaction>());
 				}
 				customer.getAccounts().add(account);
 			}
@@ -125,18 +125,14 @@ public class BankFile {
 			{
 				RecordData record = new RecordData();
 				record.active = true;
-				record.accountNumber = safe(customerAccountNumber(account));
+				record.accountNumber = safe(account.getNumber());
 				record.surname = safe(customer.getSurname());
 				record.firstName = safe(customer.getFirstName());
 				record.customerId = safe(customer.getCustomerID());
-				record.accountType = accountType(account);
+				record.accountType = account.getAccountType();
 				record.balance = account.getBalance();
-				record.overdraft = 0;
-				record.interestRate = 0;
-				if(account instanceof CustomerDepositAccount)
-				{
-					record.interestRate = ((CustomerDepositAccount) account).getInterestRate();
-				}
+				record.overdraft = account.getOverdraftLimit();
+				record.interestRate = account.getStoredInterestRate();
 				records.add(record);
 			}
 		}
@@ -233,24 +229,6 @@ public class BankFile {
 			chars[i] = raf.readChar();
 		}
 		return new String(chars).trim();
-	}
-
-	private String customerAccountNumber(CustomerAccount account)
-	{
-		if(account.getNumber() == null)
-		{
-			return "";
-		}
-		return account.getNumber();
-	}
-
-	private String accountType(CustomerAccount account)
-	{
-		if(account instanceof CustomerDepositAccount)
-		{
-			return "Deposit";
-		}
-		return "Current";
 	}
 
 	private String safe(String value)

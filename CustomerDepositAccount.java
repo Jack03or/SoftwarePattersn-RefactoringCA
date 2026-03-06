@@ -26,6 +26,18 @@ public void setInterestRate(double interestRate)
 	this.interestRate = interestRate;
 }
 
+	// Deposit account type text
+	public String getAccountType()
+	{
+		return "Deposit";
+	}
+
+	// Deposit account keeps its interest rate
+	public double getStoredInterestRate()
+	{
+		return this.interestRate;
+	}
+
 	// Deposit account shows 25 euro in the admin fee message
 	public String getAdminChargeDisplayAmount()
 	{

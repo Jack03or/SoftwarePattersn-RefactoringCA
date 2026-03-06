@@ -77,6 +77,24 @@ public class CustomerAccount  {
 		return 0;
 	}
 
+	// Return account type text for persistence and display
+	public String getAccountType()
+	{
+		return "Current";
+	}
+
+	// Base account has no overdraft limit
+	public double getOverdraftLimit()
+	{
+		return 0;
+	}
+
+	// Base account has no stored interest rate
+	public double getStoredInterestRate()
+	{
+		return 0;
+	}
+
 	// Apply interest percentage to this account
 	public void applyInterestPercentage(double interest)
 	{
