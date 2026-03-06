@@ -1424,42 +1424,8 @@ public class Menu extends JFrame{
 
 			if(acc instanceof CustomerCurrentAccount)
 			{
-				int count = 3;
-				int checkPin = ((CustomerCurrentAccount) acc).getAtm().getPin();
-				loop = true;
-				
-				while(loop)
-				{
-					if(count == 0)
-					{
-						JOptionPane.showMessageDialog(f, "Pin entered incorrectly 3 times. ATM card locked."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);
-						((CustomerCurrentAccount) acc).getAtm().setValid(false);
-						customer(e); 
-						loop = false;
-						on = false;
-					}
-					
-					String Pin = JOptionPane.showInputDialog(f, "Enter 4 digit PIN;");
-					int i = Integer.parseInt(Pin);
-					
-				   if(on)
-				   {
-					if(checkPin == i)
-					{
-						loop = false;
-						JOptionPane.showMessageDialog(f, "Pin entry successful" ,  "Pin", JOptionPane.INFORMATION_MESSAGE);
-						
-					}
-					else
-					{
-						count --;
-						JOptionPane.showMessageDialog(f, "Incorrect pin. " + count + " attempts remaining."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);					
-					}
-				
-				}
-				}
-		
-				
+				// Reuse helper method for current account PIN checks
+				on = verifyCurrentAccountPin(e);
 			}		if(on == true)
 					{
 				String balanceTest = JOptionPane.showInputDialog(f, "Enter amount you wish to lodge:");//the isNumeric method tests to see if the string entered was numeric. 
@@ -1497,47 +1463,8 @@ public class Menu extends JFrame{
 
 				if(acc instanceof CustomerCurrentAccount)
 				{
-					int count = 3;
-					int checkPin = ((CustomerCurrentAccount) acc).getAtm().getPin();
-					loop = true;
-					
-					while(loop)
-					{
-						if(count == 0)
-						{
-							JOptionPane.showMessageDialog(f, "Pin entered incorrectly 3 times. ATM card locked."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);
-							((CustomerCurrentAccount) acc).getAtm().setValid(false);
-							customer(e); 
-							loop = false;
-							on = false;
-						}
-						
-						String Pin = JOptionPane.showInputDialog(f, "Enter 4 digit PIN;");
-						int i = Integer.parseInt(Pin);
-						
-					   if(on)
-					   {
-						if(checkPin == i)
-						{
-							loop = false;
-							JOptionPane.showMessageDialog(f, "Pin entry successful" ,  "Pin", JOptionPane.INFORMATION_MESSAGE);
-							
-						}
-						else
-						{
-							count --;
-							JOptionPane.showMessageDialog(f, "Incorrect pin. " + count + " attempts remaining."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);		
-						
-						}
-					
-					}
-					}
-		
-				    	
-				    	
-				    
-					
-					
+					// Reuse helper method for current account PIN checks
+					on = verifyCurrentAccountPin(e);
 				}		if(on == true)
 						{
 					String balanceTest = JOptionPane.showInputDialog(f, "Enter amount you wish to withdraw (max 500):");//the isNumeric method tests to see if the string entered was numeric. 
@@ -1742,6 +1669,38 @@ public class Menu extends JFrame{
 		pageContent.setLayout(new BorderLayout());
 		pageContent.add(scrollPane, BorderLayout.CENTER);
 		pageContent.add(buttonPanel, BorderLayout.SOUTH);
+	}
+
+	// Check PIN for current account actions
+	private boolean verifyCurrentAccountPin(Customer selectedCustomer)
+	{
+		int count = 3;
+		int checkPin = ((CustomerCurrentAccount) acc).getAtm().getPin();
+		boolean loop = true;
+		while(loop)
+		{
+			if(count == 0)
+			{
+				JOptionPane.showMessageDialog(f, "Pin entered incorrectly 3 times. ATM card locked."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);
+				((CustomerCurrentAccount) acc).getAtm().setValid(false);
+				customer(selectedCustomer);
+				return false;
+			}
+
+			String pinText = JOptionPane.showInputDialog(f, "Enter 4 digit PIN;");
+			int pin = Integer.parseInt(pinText);
+			if(checkPin == pin)
+			{
+				loop = false;
+				JOptionPane.showMessageDialog(f, "Pin entry successful" ,  "Pin", JOptionPane.INFORMATION_MESSAGE);
+			}
+			else
+			{
+				count --;
+				JOptionPane.showMessageDialog(f, "Incorrect pin. " + count + " attempts remaining."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
+		return true;
 	}
 
 	// Mark that in-memory data has changed
