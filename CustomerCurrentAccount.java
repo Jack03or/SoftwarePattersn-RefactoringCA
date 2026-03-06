@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class CustomerCurrentAccount extends CustomerAccount 
 {
@@ -36,6 +38,40 @@ public void setAtm(ATMCard atm)
 {
 	this.atm = atm;
 }
+
+	// Check if entered PIN matches account PIN
+	public boolean isPinCorrect(int enteredPin)
+	{
+		return this.atm.getPin() == enteredPin;
+	}
+
+	// Lock ATM card after failed PIN attempts
+	public void lockCard()
+	{
+		this.atm.setValid(false);
+	}
+
+	// Verify PIN with 3 attempts
+	public boolean verifyPinWithThreeAttempts(JFrame frame)
+	{
+		int count = 3;
+		while(count > 0)
+		{
+			String pinText = JOptionPane.showInputDialog(frame, "Enter 4 digit PIN;");
+			int pin = Integer.parseInt(pinText);
+			if(isPinCorrect(pin))
+			{
+				JOptionPane.showMessageDialog(frame, "Pin entry successful" ,  "Pin", JOptionPane.INFORMATION_MESSAGE);
+				return true;
+			}
+			count --;
+			JOptionPane.showMessageDialog(frame, "Incorrect pin. " + count + " attempts remaining."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);
+		}
+
+		lockCard();
+		JOptionPane.showMessageDialog(frame, "Pin entered incorrectly 3 times. ATM card locked."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);
+		return false;
+	}
 
 	// Current account keeps its overdraft limit
 	public double getOverdraftLimit()

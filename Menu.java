@@ -1674,31 +1674,12 @@ public class Menu extends JFrame{
 	// Check PIN for current account actions
 	private boolean verifyCurrentAccountPin(Customer selectedCustomer)
 	{
-		int count = 3;
-		int checkPin = ((CustomerCurrentAccount) acc).getAtm().getPin();
-		boolean loop = true;
-		while(loop)
+		// Use current account method for PIN verification and card locking
+		boolean verified = ((CustomerCurrentAccount) acc).verifyPinWithThreeAttempts(f);
+		if(!verified)
 		{
-			if(count == 0)
-			{
-				JOptionPane.showMessageDialog(f, "Pin entered incorrectly 3 times. ATM card locked."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);
-				((CustomerCurrentAccount) acc).getAtm().setValid(false);
-				customer(selectedCustomer);
-				return false;
-			}
-
-			String pinText = JOptionPane.showInputDialog(f, "Enter 4 digit PIN;");
-			int pin = Integer.parseInt(pinText);
-			if(checkPin == pin)
-			{
-				loop = false;
-				JOptionPane.showMessageDialog(f, "Pin entry successful" ,  "Pin", JOptionPane.INFORMATION_MESSAGE);
-			}
-			else
-			{
-				count --;
-				JOptionPane.showMessageDialog(f, "Incorrect pin. " + count + " attempts remaining."  ,"Pin",  JOptionPane.INFORMATION_MESSAGE);
-			}
+			customer(selectedCustomer);
+			return false;
 		}
 		return true;
 	}
