@@ -326,7 +326,10 @@ public class Menu extends JFrame{
 		f.setSize(400, 400);
 		f.setLocation(200, 200);
 		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
+			public void windowClosing(WindowEvent we) {
+				f.dispose();
+				menuStart();
+			}
 		});          
 		f.setVisible(true);
 		
@@ -1240,6 +1243,7 @@ public class Menu extends JFrame{
 	     });		
 		returnButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
+				// Exit admin menu and return to start menu
 				f.dispose();
 				menuStart();				
 			}
@@ -1253,7 +1257,10 @@ public class Menu extends JFrame{
 		f.setSize(400, 300);
 		f.setLocation(200, 200);
 		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
+			public void windowClosing(WindowEvent we) {
+				f.dispose();
+				menuStart();
+			}
 		});          
 		f.setVisible(true);
 		
@@ -1315,7 +1322,10 @@ public class Menu extends JFrame{
 		f.setSize(400, 300);
 		f.setLocation(200, 200);
 		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
+			public void windowClosing(WindowEvent we) {
+				f.dispose();
+				menuStart();
+			}
 		});          
 		f.setVisible(true);
 		
@@ -1447,6 +1457,7 @@ public class Menu extends JFrame{
 		
 		returnButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
+				// Exit customer menu and return to start menu
 				f.dispose();		
 				menuStart();				
 			}

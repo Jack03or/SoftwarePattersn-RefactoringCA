@@ -11,6 +11,7 @@ public class BankFile {
 	private static final int SURNAME_LEN = 20;
 	private static final int FIRST_NAME_LEN = 20;
 	private static final int CUSTOMER_ID_LEN = 20;
+	private static final int PASSWORD_LEN = 20;
 	private static final int ACCOUNT_TYPE_LEN = 10;
 
 	private static final int RECORD_SIZE = 1
@@ -19,6 +20,7 @@ public class BankFile {
 			+ (SURNAME_LEN * 2)
 			+ (FIRST_NAME_LEN * 2)
 			+ (CUSTOMER_ID_LEN * 2)
+			+ (PASSWORD_LEN * 2)
 			+ (ACCOUNT_TYPE_LEN * 2)
 			+ 8
 			+ 8
@@ -85,7 +87,7 @@ public class BankFile {
 				Customer customer = findCustomerById(customers, record.customerId);
 				if(customer == null)
 				{
-					customer = new Customer("", record.surname, record.firstName, "", record.customerId, "", new ArrayList<CustomerAccount>());
+					customer = new Customer("", record.surname, record.firstName, "", record.customerId, record.password, new ArrayList<CustomerAccount>());
 					customers.add(customer);
 				}
 
@@ -129,6 +131,7 @@ public class BankFile {
 				record.surname = safe(customer.getSurname());
 				record.firstName = safe(customer.getFirstName());
 				record.customerId = safe(customer.getCustomerID());
+				record.password = safe(customer.getPassword());
 				record.accountType = account.getAccountType();
 				record.balance = account.getBalance();
 				record.overdraft = account.getOverdraftLimit();
@@ -183,6 +186,7 @@ public class BankFile {
 		writeFixedString(raf, safe(record.surname), SURNAME_LEN);
 		writeFixedString(raf, safe(record.firstName), FIRST_NAME_LEN);
 		writeFixedString(raf, safe(record.customerId), CUSTOMER_ID_LEN);
+		writeFixedString(raf, safe(record.password), PASSWORD_LEN);
 		writeFixedString(raf, safe(record.accountType), ACCOUNT_TYPE_LEN);
 		raf.writeDouble(record.balance);
 		raf.writeDouble(record.overdraft);
@@ -199,6 +203,7 @@ public class BankFile {
 		record.surname = readFixedString(raf, SURNAME_LEN);
 		record.firstName = readFixedString(raf, FIRST_NAME_LEN);
 		record.customerId = readFixedString(raf, CUSTOMER_ID_LEN);
+		record.password = readFixedString(raf, PASSWORD_LEN);
 		record.accountType = readFixedString(raf, ACCOUNT_TYPE_LEN);
 		record.balance = raf.readDouble();
 		record.overdraft = raf.readDouble();
@@ -248,6 +253,7 @@ public class BankFile {
 		String surname = "";
 		String firstName = "";
 		String customerId = "";
+		String password = "";
 		String accountType = "";
 		double balance;
 		double overdraft;
