@@ -117,4 +117,10 @@ public void setAtm(ATMCard atm)
 		return (this.balance - amount) >= (0 - this.overdraftLimit);
 	}
 
+	// Current account requires PIN verification
+	public boolean requiresPinVerification()
+	{
+		return true;
+	}
+
 }

@@ -1372,7 +1372,7 @@ public class Menu extends JFrame{
 			boolean on = true;
 			double balance = 0;
 
-			if(acc instanceof CustomerCurrentAccount)
+			if(acc.requiresPinVerification())
 			{
 				// Reuse helper method for current account PIN checks
 				on = verifyCurrentAccountPin(e);
@@ -1405,7 +1405,7 @@ public class Menu extends JFrame{
 				boolean on = true;
 				double withdraw = 0;
 
-				if(acc instanceof CustomerCurrentAccount)
+				if(acc.requiresPinVerification())
 				{
 					// Reuse helper method for current account PIN checks
 					on = verifyCurrentAccountPin(e);

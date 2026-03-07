@@ -95,6 +95,12 @@ public class CustomerAccount  {
 		return 0;
 	}
 
+	// Base account does not require PIN verification
+	public boolean requiresPinVerification()
+	{
+		return false;
+	}
+
 	// Apply interest percentage to this account
 	public void applyInterestPercentage(double interest)
 	{
