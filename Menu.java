@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.File;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -20,6 +19,7 @@ import java.util.Date;
 public class Menu extends JFrame{
 	
 	private ArrayList<Customer> customerList = new ArrayList<Customer>();
+	private AdminAccountHelper adminAccountHelper = new AdminAccountHelper();
 	private BankFile bankFile = new BankFile();
 	private String currentFilePath = null;
 	private boolean hasUnsavedChanges = false;
@@ -547,7 +547,7 @@ public class Menu extends JFrame{
 						{
 						
 					// Reuse helper method for account lookup by account number
-					acc = findAccountByNumber(customer.getAccounts(), String.valueOf(box.getSelectedItem()));
+					acc = adminAccountHelper.findAccountByNumber(customer.getAccounts(), String.valueOf(box.getSelectedItem()));
 										
 					continueButton.addActionListener(new ActionListener(  ) {
 						public void actionPerformed(ActionEvent ae) {
@@ -669,7 +669,7 @@ public class Menu extends JFrame{
 						{
 						
 					// Reuse helper method for account lookup by account number
-					acc = findAccountByNumber(customer.getAccounts(), String.valueOf(box.getSelectedItem()));
+					acc = adminAccountHelper.findAccountByNumber(customer.getAccounts(), String.valueOf(box.getSelectedItem()));
 										
 					continueButton.addActionListener(new ActionListener(  ) {
 						public void actionPerformed(ActionEvent ae) {
@@ -854,8 +854,8 @@ public class Menu extends JFrame{
 				{
 					return;
 				}
-				Customer owner = findCustomerByAccountNumber(accountNumber.trim());
-				CustomerAccount account = findAnyAccountByNumber(accountNumber.trim());
+				Customer owner = adminAccountHelper.findCustomerByAccountNumber(customerList, accountNumber.trim());
+				CustomerAccount account = adminAccountHelper.findAnyAccountByNumber(customerList, accountNumber.trim());
 				if(account == null || owner == null)
 				{
 					JOptionPane.showMessageDialog(f, "Account not found." ,"Find Account",  JOptionPane.INFORMATION_MESSAGE);
@@ -880,7 +880,7 @@ public class Menu extends JFrame{
 				{
 					return;
 				}
-				ArrayList<Customer> matches = findCustomersBySurname(surname.trim());
+				ArrayList<Customer> matches = adminAccountHelper.findCustomersBySurname(customerList, surname.trim());
 				if(matches.isEmpty())
 				{
 					JOptionPane.showMessageDialog(f, "No customers found for that surname." ,"Find Surname",  JOptionPane.INFORMATION_MESSAGE);
@@ -1284,7 +1284,7 @@ public class Menu extends JFrame{
 	    
 	   
 	    // Reuse helper method for account lookup by account number
-	    acc = findAccountByNumber(e.getAccounts(), String.valueOf(box.getSelectedItem()));
+	    acc = adminAccountHelper.findAccountByNumber(e.getAccounts(), String.valueOf(box.getSelectedItem()));
 	    
 	    
 	    
@@ -1526,121 +1526,20 @@ public class Menu extends JFrame{
 		passwordTextField.setText(selectedCustomer.getPassword());
 	}
 
-	// Find an account in a list using the account number
-	private CustomerAccount findAccountByNumber(ArrayList<CustomerAccount> accounts, String accountNumber)
-	{
-		String targetAccountNumber = "";
-		if(accountNumber != null)
-		{
-			targetAccountNumber = accountNumber.trim();
-		}
-		for (CustomerAccount account : accounts)
-		{
-			if(account.getNumber() != null && account.getNumber().trim().equalsIgnoreCase(targetAccountNumber))
-			{
-				return account;
-			}
-		}
-		return null;
-	}
-
-	// Find customers with matching surname
-	private ArrayList<Customer> findCustomersBySurname(String surname)
-	{
-		ArrayList<Customer> matches = new ArrayList<Customer>();
-		for (Customer currentCustomer : customerList)
-		{
-			if(currentCustomer.getSurname().equalsIgnoreCase(surname))
-			{
-				matches.add(currentCustomer);
-			}
-		}
-		return matches;
-	}
-
-	// Find any account in the whole bank by account number
-	private CustomerAccount findAnyAccountByNumber(String accountNumber)
-	{
-		for (Customer currentCustomer : customerList)
-		{
-			CustomerAccount account = findAccountByNumber(currentCustomer.getAccounts(), accountNumber);
-			if(account != null)
-			{
-				return account;
-			}
-		}
-		return null;
-	}
-
-	// Find the customer who owns an account number
-	private Customer findCustomerByAccountNumber(String accountNumber)
-	{
-		for (Customer currentCustomer : customerList)
-		{
-			CustomerAccount account = findAccountByNumber(currentCustomer.getAccounts(), accountNumber);
-			if(account != null)
-			{
-				return currentCustomer;
-			}
-		}
-		return null;
-	}
-
 	// Show all accounts in a sortable and non-editable table
 	private void showAllAccountsTable()
 	{
-		f.dispose();
-		f = new JFrame("All Accounts");
-		f.setSize(850, 500);
-		f.setLocation(200, 200);
-		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
-		});
-		f.setVisible(true);
-
-		String[] columns = {"Account Number", "Account Type", "Customer ID", "Surname", "First Name", "Balance"};
-		DefaultTableModel model = new DefaultTableModel(columns, 0) {
-			public boolean isCellEditable(int row, int column)
-			{
-				return false;
-			}
-		};
-
-		for (Customer currentCustomer : customerList)
-		{
-			for (CustomerAccount account : currentCustomer.getAccounts())
-			{
-				Object[] row = {
-						account.getNumber(),
-						account.getAccountType(),
-						currentCustomer.getCustomerID(),
-						currentCustomer.getSurname(),
-						currentCustomer.getFirstName(),
-						account.getBalance()
-				};
-				model.addRow(row);
-			}
-		}
-
-		JTable table = new JTable(model);
-		table.setAutoCreateRowSorter(true);
-		JScrollPane scrollPane = new JScrollPane(table);
-
-		JButton returnButton = new JButton("Return");
-		returnButton.addActionListener(new ActionListener(  ) {
-			public void actionPerformed(ActionEvent ae) {
-				f.dispose();
-				admin();
-			}
-		});
-
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.add(returnButton);
-
-		Container pageContent = f.getContentPane();
-		pageContent.setLayout(new BorderLayout());
-		pageContent.add(scrollPane, BorderLayout.CENTER);
-		pageContent.add(buttonPanel, BorderLayout.SOUTH);
+		adminAccountHelper.showAllAccountsTable(f, customerList,
+				new Runnable() {
+					public void run() {
+						admin();
+					}
+				},
+				new Runnable() {
+					public void run() {
+						exitApplicationWithSavePrompt();
+					}
+				});
 	}
 
 	// Check PIN for current account actions
@@ -1705,7 +1604,7 @@ public class Menu extends JFrame{
 			return;
 		}
 
-		CustomerAccount selectedAccount = findAccountByNumber(selectedCustomer.getAccounts(), selectedAccountNumber);
+		CustomerAccount selectedAccount = adminAccountHelper.findAccountByNumber(selectedCustomer.getAccounts(), selectedAccountNumber);
 		if(!(selectedAccount instanceof CustomerCurrentAccount))
 		{
 			JOptionPane.showMessageDialog(f, "Selected account is not a current account." ,"Set Overdraft",  JOptionPane.INFORMATION_MESSAGE);
