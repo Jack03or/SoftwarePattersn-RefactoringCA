@@ -26,7 +26,7 @@ public class Menu extends JFrame{
 		JLabel customerIDLabel, passwordLabel;
 		JTextField customerIDTextField, passwordTextField;
 	Container content;
-		Customer e;
+		Customer selectedCustomer;
 
 
 	 JPanel panel2;
@@ -1111,10 +1111,10 @@ public class Menu extends JFrame{
 	     });		
 	}
 	
-	public void customer(Customer e1)
+	public void customer(Customer selectedCustomerArg)
 	{	
 		f = new JFrame("Customer Menu");
-		e = e1;
+		selectedCustomer = selectedCustomerArg;
 		f.setSize(400, 300);
 		f.setLocation(200, 200);
 		f.addWindowListener(new WindowAdapter() {
@@ -1125,7 +1125,7 @@ public class Menu extends JFrame{
 		});          
 		f.setVisible(true);
 		
-		if(e.getAccounts().size() == 0)
+		if(selectedCustomer.getAccounts().size() == 0)
 		{
 			JOptionPane.showMessageDialog(f, "This customer does not have any accounts yet. \n An admin must create an account for this customer \n for them to be able to use customer functionality. " ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
 			f.dispose();				
@@ -1146,15 +1146,15 @@ public class Menu extends JFrame{
 		buttonPanel.add(continueButton);
 		
 		JComboBox<String> box = new JComboBox<String>();
-	    for (int i =0; i < e.getAccounts().size(); i++)
+	    for (int i =0; i < selectedCustomer.getAccounts().size(); i++)
 	    {
-	     box.addItem(e.getAccounts().get(i).getNumber());
+	     box.addItem(selectedCustomer.getAccounts().get(i).getNumber());
 	    }
 		
 	    
 	   
 	    // Reuse helper method for account lookup by account number
-	    acc = adminAccountHelper.findAccountByNumber(e.getAccounts(), String.valueOf(box.getSelectedItem()));
+	    acc = adminAccountHelper.findAccountByNumber(selectedCustomer.getAccounts(), String.valueOf(box.getSelectedItem()));
 	    
 	    
 	    
@@ -1225,9 +1225,9 @@ public class Menu extends JFrame{
 				// Use extracted helper class for customer statement screen
 				customerActionHelper.showAccountStatement(f, acc,
 						new Runnable() {
-							public void run() {
-								customer(e);
-							}
+								public void run() {
+									customer(selectedCustomer);
+								}
 						},
 						new Runnable() {
 							public void run() {
@@ -1239,14 +1239,15 @@ public class Menu extends JFrame{
 		
 		lodgementButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
-			boolean on = true;
-			double balance = 0;
+			boolean pinVerified = true;
+			double lodgeAmount = 0;
 
 			if(acc.requiresPinVerification())
 			{
 				// Reuse helper method for current account PIN checks
-				on = verifyCurrentAccountPin(e);
-			}		if(on == true)
+				pinVerified = verifyCurrentAccountPin(selectedCustomer);
+			}
+			if(pinVerified)
 					{
 				// Reuse helper method for numeric input
 				Double balanceValue = dialogInputHelper.promptForNumericInputOnce(f, "Enter amount you wish to lodge:");
@@ -1254,15 +1255,15 @@ public class Menu extends JFrame{
 				{
 					return;
 				}
-				balance = balanceValue.doubleValue();
+				lodgeAmount = balanceValue.doubleValue();
 				
 			
 			String euro = "\u20ac";
 			// Use account method for lodgement and transaction entry
-			acc.lodge(balance);
+			acc.lodge(lodgeAmount);
 			markDataChanged();
 				
-			 JOptionPane.showMessageDialog(f, balance + euro + " added do you account!" ,"Lodgement",  JOptionPane.INFORMATION_MESSAGE);
+			 JOptionPane.showMessageDialog(f, lodgeAmount + euro + " added do you account!" ,"Lodgement",  JOptionPane.INFORMATION_MESSAGE);
 			 JOptionPane.showMessageDialog(f, "New balance = " + acc.getBalance() + euro ,"Lodgement",  JOptionPane.INFORMATION_MESSAGE);
 			}
 
@@ -1271,41 +1272,42 @@ public class Menu extends JFrame{
 		
 		withdrawButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
-				boolean on = true;
-				double withdraw = 0;
+				boolean pinVerified = true;
+				double withdrawAmount = 0;
 
 				if(acc.requiresPinVerification())
 				{
 					// Reuse helper method for current account PIN checks
-					on = verifyCurrentAccountPin(e);
-				}		if(on == true)
-						{
+					pinVerified = verifyCurrentAccountPin(selectedCustomer);
+				}
+				if(pinVerified)
+							{
 					// Reuse helper method for numeric input
 					Double withdrawValue = dialogInputHelper.promptForNumericInputOnce(f, "Enter amount you wish to withdraw (max 500):");
 					if(withdrawValue == null)
 					{
 						return;
 					}
-					withdraw = withdrawValue.doubleValue();
-					if(withdraw > 500)
-					{
-						JOptionPane.showMessageDialog(f, "500 is the maximum you can withdraw at a time." ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-						withdraw = 0;
-					}
-					if(!acc.canWithdraw(withdraw))
-					{
-						JOptionPane.showMessageDialog(f, "Insufficient funds." ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-						withdraw = 0;					
-					}
+						withdrawAmount = withdrawValue.doubleValue();
+						if(withdrawAmount > 500)
+						{
+							JOptionPane.showMessageDialog(f, "500 is the maximum you can withdraw at a time." ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
+							withdrawAmount = 0;
+						}
+						if(!acc.canWithdraw(withdrawAmount))
+						{
+							JOptionPane.showMessageDialog(f, "Insufficient funds." ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
+							withdrawAmount = 0;					
+						}
 				
 				String euro = "\u20ac";
 				// Use account method for withdrawal and transaction entry
-				acc.withdraw(withdraw);
-				markDataChanged();
+					acc.withdraw(withdrawAmount);
+					markDataChanged();
 				 
 				 
 					
-				 JOptionPane.showMessageDialog(f, withdraw + euro + " withdrawn." ,"Withdraw",  JOptionPane.INFORMATION_MESSAGE);
+					 JOptionPane.showMessageDialog(f, withdrawAmount + euro + " withdrawn." ,"Withdraw",  JOptionPane.INFORMATION_MESSAGE);
 				 JOptionPane.showMessageDialog(f, "New balance = " + acc.getBalance() + euro ,"Withdraw",  JOptionPane.INFORMATION_MESSAGE);
 				}
 				 
