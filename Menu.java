@@ -6,15 +6,6 @@ import java.io.IOException;
 import java.io.File;
 
 import javax.swing.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import javax.swing.text.MaskFormatter;
-import java.util.ArrayList;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 public class Menu extends JFrame{
 	
@@ -467,89 +458,59 @@ public class Menu extends JFrame{
 		
 		bankChargesButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
-				
-				boolean loop = true;
-				
-				boolean found = false;
-			
 				// Use one shared check before running admin actions
 				if(!hasCustomersForAdminAction())
 				{
 					return;
 				}
-				else
+				// Reuse helper method for customer lookup by ID
+				customer = promptForCustomerByIdWithRetry("Customer ID of Customer You Wish to Apply Charges to:");
+				if(customer == null)
 				{
-			    while(loop)
+					return;
+				}
+				f.dispose();
+				f = new JFrame("Administrator Menu");
+				f.setSize(400, 300);
+				f.setLocation(200, 200);
+				f.addWindowListener(new WindowAdapter() {
+					public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
+				});          
+				f.setVisible(true);
+				
+				
+			    JComboBox<String> box = new JComboBox<String>();
+			    for (int i =0; i < customer.getAccounts().size(); i++)
 			    {
-			    Object customerID = JOptionPane.showInputDialog(f, "Customer ID of Customer You Wish to Apply Charges to:");
-			    // Reuse helper method for customer lookup by ID
-			    customer = findCustomerById(String.valueOf(customerID));
-			    if(customer != null)
-			    {
-			    	found = true;
-			    	loop = false;
+			    	box.addItem(customer.getAccounts().get(i).getNumber());
 			    }
-			    
-			    if(found == false)
-			    {
-			    	int reply  = JOptionPane.showConfirmDialog(null, null, "User not found. Try again?", JOptionPane.YES_NO_OPTION);
-			    	if (reply == JOptionPane.YES_OPTION) {
-			    		loop = true;
-			    	}
-			    	else if(reply == JOptionPane.NO_OPTION)
-			    	{
-			    		f.dispose();
-			    		loop = false;
-			    	
-			    		admin();
-			    	}
-			    }  
-			    else
-			    {
-			    	f.dispose();
-			    	f = new JFrame("Administrator Menu");
-					f.setSize(400, 300);
-					f.setLocation(200, 200);
-					f.addWindowListener(new WindowAdapter() {
-						public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
-					});          
-					f.setVisible(true);
-				
-				
-				    JComboBox<String> box = new JComboBox<String>();
-				    for (int i =0; i < customer.getAccounts().size(); i++)
-				    {
-				    	
-				    	
-				     box.addItem(customer.getAccounts().get(i).getNumber());
-				    }
 					
 				    
-				    box.getSelectedItem();
+			    box.getSelectedItem();
 				
-				    JPanel boxPanel = new JPanel();
-					boxPanel.add(box);
+			    JPanel boxPanel = new JPanel();
+				boxPanel.add(box);
 					
-					JPanel buttonPanel = new JPanel();
-					JButton continueButton = new JButton("Apply Charge");
-					JButton returnButton = new JButton("Return");
-					buttonPanel.add(continueButton);
-					buttonPanel.add(returnButton);
-					Container content = f.getContentPane();
-					content.setLayout(new GridLayout(2, 1));
+				JPanel buttonPanel = new JPanel();
+				JButton continueButton = new JButton("Apply Charge");
+				JButton returnButton = new JButton("Return");
+				buttonPanel.add(continueButton);
+				buttonPanel.add(returnButton);
+				Container content = f.getContentPane();
+				content.setLayout(new GridLayout(2, 1));
 					
-					content.add(boxPanel);
-					content.add(buttonPanel);
+				content.add(boxPanel);
+				content.add(buttonPanel);
 					
 			
-						if(customer.getAccounts().isEmpty())
-						{
-							JOptionPane.showMessageDialog(f, "This customer has no accounts! \n The admin must add acounts to this customer."   ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-							f.dispose();
-							admin();
-						}
-						else
-						{
+				if(customer.getAccounts().isEmpty())
+				{
+					JOptionPane.showMessageDialog(f, "This customer has no accounts! \n The admin must add acounts to this customer."   ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
+					f.dispose();
+					admin();
+				}
+				else
+				{
 						
 					// Reuse helper method for account lookup by account number
 					acc = adminAccountHelper.findAccountByNumber(customer.getAccounts(), String.valueOf(box.getSelectedItem()));
@@ -575,103 +536,69 @@ public class Menu extends JFrame{
 						}
 				     });	
 					
-						}
-			    }
-			    }
-			    }
-			    
-			    
+				}
 			    
 			}		
 	     });
 		
 		interestButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
-
-				boolean loop = true;
-				
-				boolean found = false;
 			
 				// Use one shared check before running admin actions
 				if(!hasCustomersForAdminAction())
 				{
 					return;
 				}
-				else
+				// Reuse helper method for customer lookup by ID
+				customer = promptForCustomerByIdWithRetry("Customer ID of Customer You Wish to Apply Interest to:");
+				if(customer == null)
 				{
-			    while(loop)
+					return;
+				}
+				f.dispose();
+				f = new JFrame("Administrator Menu");
+				f.setSize(400, 300);
+				f.setLocation(200, 200);
+				f.addWindowListener(new WindowAdapter() {
+					public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
+				});          
+				f.setVisible(true);
+				
+				
+			    JComboBox<String> box = new JComboBox<String>();
+			    for (int i =0; i < customer.getAccounts().size(); i++)
 			    {
-			    Object customerID = JOptionPane.showInputDialog(f, "Customer ID of Customer You Wish to Apply Interest to:");
-			    // Reuse helper method for customer lookup by ID
-			    customer = findCustomerById(String.valueOf(customerID));
-			    if(customer != null)
-			    {
-			    	found = true;
-			    	loop = false;
+			    	box.addItem(customer.getAccounts().get(i).getNumber());
 			    }
-			    
-			    if(found == false)
-			    {
-			    	int reply  = JOptionPane.showConfirmDialog(null, null, "User not found. Try again?", JOptionPane.YES_NO_OPTION);
-			    	if (reply == JOptionPane.YES_OPTION) {
-			    		loop = true;
-			    	}
-			    	else if(reply == JOptionPane.NO_OPTION)
-			    	{
-			    		f.dispose();
-			    		loop = false;
-			    	
-			    		admin();
-			    	}
-			    }  
-			    else
-			    {
-			    	f.dispose();
-			    	f = new JFrame("Administrator Menu");
-					f.setSize(400, 300);
-					f.setLocation(200, 200);
-					f.addWindowListener(new WindowAdapter() {
-						public void windowClosing(WindowEvent we) { exitApplicationWithSavePrompt(); }
-					});          
-					f.setVisible(true);
-				
-				
-				    JComboBox<String> box = new JComboBox<String>();
-				    for (int i =0; i < customer.getAccounts().size(); i++)
-				    {
-				    	
-				    	
-				     box.addItem(customer.getAccounts().get(i).getNumber());
-				    }
 					
 				    
-				    box.getSelectedItem();
+			    box.getSelectedItem();
 				
-				    JPanel boxPanel = new JPanel();
+			    JPanel boxPanel = new JPanel();
 					
-					JLabel label = new JLabel("Select an account to apply interest to:");
-					boxPanel.add(label);
-					boxPanel.add(box);
-					JPanel buttonPanel = new JPanel();
-					JButton continueButton = new JButton("Apply Interest");
-					JButton returnButton = new JButton("Return");
-					buttonPanel.add(continueButton);
-					buttonPanel.add(returnButton);
-					Container content = f.getContentPane();
-					content.setLayout(new GridLayout(2, 1));
+				JLabel label = new JLabel("Select an account to apply interest to:");
+				boxPanel.add(label);
+				boxPanel.add(box);
+				JPanel buttonPanel = new JPanel();
+				JButton continueButton = new JButton("Apply Interest");
+				JButton returnButton = new JButton("Return");
+				buttonPanel.add(continueButton);
+				buttonPanel.add(returnButton);
+				Container content = f.getContentPane();
+				content.setLayout(new GridLayout(2, 1));
 					
-					content.add(boxPanel);
-					content.add(buttonPanel);
+				content.add(boxPanel);
+				content.add(buttonPanel);
 					
 			
-						if(customer.getAccounts().isEmpty())
-						{
-							JOptionPane.showMessageDialog(f, "This customer has no accounts! \n The admin must add acounts to this customer."   ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-							f.dispose();
-							admin();
-						}
-						else
-						{
+				if(customer.getAccounts().isEmpty())
+				{
+					JOptionPane.showMessageDialog(f, "This customer has no accounts! \n The admin must add acounts to this customer."   ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
+					f.dispose();
+					admin();
+				}
+				else
+				{
 						
 					// Reuse helper method for account lookup by account number
 					acc = adminAccountHelper.findAccountByNumber(customer.getAccounts(), String.valueOf(box.getSelectedItem()));
@@ -703,62 +630,24 @@ public class Menu extends JFrame{
 						}
 				     });	
 					
-						}
-			    }
-			    }
-			    }
+				}
 			    
 			}	
 	     });
 		
 		editCustomerButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
-				
-				boolean loop = true;
-			
-				boolean found = false;
-			
 				// Use one shared check before running admin actions
 				if(!hasCustomersForAdminAction())
 				{
 					return;
 				}
-				else
+				// Reuse helper method for customer lookup by ID
+				customer = promptForCustomerByIdWithRetry("Enter Customer ID:");
+				if(customer == null)
 				{
-				
-			    while(loop)
-			    {
-			    Object customerID = JOptionPane.showInputDialog(f, "Enter Customer ID:");
-			    // Reuse helper method for customer lookup by ID
-			    customer = findCustomerById(String.valueOf(customerID));
-			    if(customer != null)
-			    {
-			    	found = true;
-			    }
-			    
-			    if(found == false)
-			    {
-			    	int reply  = JOptionPane.showConfirmDialog(null, null, "User not found. Try again?", JOptionPane.YES_NO_OPTION);
-			    	if (reply == JOptionPane.YES_OPTION) {
-			    		loop = true;
-			    	}
-			    	else if(reply == JOptionPane.NO_OPTION)
-			    	{
-			    		f.dispose();
-			    		loop = false;
-			    	
-			    		admin();
-			    	}
-			    }
-			    else
-			    {
-			    	loop = false;
-			    }
-			   
-			    }
-				
-				f.dispose();
-				
+					return;
+				}
 				f.dispose();
 				f = new JFrame("Administrator Menu");
 				f.setSize(400, 300);
@@ -835,15 +724,15 @@ public class Menu extends JFrame{
 							}		
 					     });
 				
-				cancelButton.addActionListener(new ActionListener(  ) {
-					public void actionPerformed(ActionEvent ae) {
-						f.dispose();
-						
-						admin();				
-					}		
-			     });		
-				}}
-	     });
+					cancelButton.addActionListener(new ActionListener(  ) {
+						public void actionPerformed(ActionEvent ae) {
+							f.dispose();
+							
+							admin();				
+						}		
+				     });		
+					}
+			     });
 		
 		summaryButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
@@ -1056,37 +945,12 @@ public class Menu extends JFrame{
 				}
 				else
 				{
-				boolean loop = true;
-				
-				boolean found = false;
-			
-			    while(loop)
-			    {
-			    Object customerID = JOptionPane.showInputDialog(f, "Customer ID of Customer You Wish to Add an Account to:");
-			    // Reuse helper method for customer lookup by ID
-			    customer = findCustomerById(String.valueOf(customerID));
-			    if(customer != null)
-			    {
-			    	found = true;
-			    }
-			    
-			    if(found == false)
-			    {
-			    	int reply  = JOptionPane.showConfirmDialog(null, null, "User not found. Try again?", JOptionPane.YES_NO_OPTION);
-			    	if (reply == JOptionPane.YES_OPTION) {
-			    		loop = true;
-			    	}
-			    	else if(reply == JOptionPane.NO_OPTION)
-			    	{
-			    		f.dispose();
-			    		loop = false;
-			    	
-			    		admin();
-			    	}
-			    }
-			    else
-			    {
-			    	loop = false;
+					// Reuse helper method for customer lookup by ID
+					customer = promptForCustomerByIdWithRetry("Customer ID of Customer You Wish to Add an Account to:");
+					if(customer == null)
+					{
+						return;
+					}
 			    	//a combo box in an dialog box that asks the admin what type of account they wish to create (deposit/current)
 				    String[] choices = { "Current Account", "Deposit Account" };
 				    String account = (String) JOptionPane.showInputDialog(null, "Please choose account type",
@@ -1100,9 +964,9 @@ public class Menu extends JFrame{
 				    	String number = String.valueOf("C" + (customerList.indexOf(customer)+1) * 10 + (customer.getAccounts().size()+1));//this simple algorithm generates the account number
 				    	ArrayList<AccountTransaction> transactionList = new ArrayList<AccountTransaction>();
 				    	int randomPIN = (int)(Math.random()*9000)+1000;
-				           String pin = String.valueOf(randomPIN);
+				        String pin = String.valueOf(randomPIN);
 				    
-				           ATMCard atm = new ATMCard(randomPIN, valid);
+				        ATMCard atm = new ATMCard(randomPIN, valid);
 				    	
 				    	CustomerCurrentAccount current = new CustomerCurrentAccount(atm, number, balance, transactionList);
 				    	
@@ -1131,9 +995,6 @@ public class Menu extends JFrame{
 				    	f.dispose();
 				    	admin();
 				    }
-			    
-			    }			   
-			    }
 				}
 			}
 	     });		
@@ -1378,7 +1239,6 @@ public class Menu extends JFrame{
 		
 		lodgementButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
-			boolean loop = true;
 			boolean on = true;
 			double balance = 0;
 
@@ -1411,7 +1271,6 @@ public class Menu extends JFrame{
 		
 		withdrawButton.addActionListener(new ActionListener(  ) {
 			public void actionPerformed(ActionEvent ae) {
-				boolean loop = true;
 				boolean on = true;
 				double withdraw = 0;
 
@@ -1489,6 +1348,28 @@ public class Menu extends JFrame{
 			}
 		}
 		return null;
+	}
+
+	// Ask for customer ID and retry when customer is not found
+	private Customer promptForCustomerByIdWithRetry(String promptMessage)
+	{
+		while(true)
+		{
+			Object customerID = JOptionPane.showInputDialog(f, promptMessage);
+			Customer selectedCustomer = findCustomerById(String.valueOf(customerID));
+			if(selectedCustomer != null)
+			{
+				return selectedCustomer;
+			}
+			int reply  = JOptionPane.showConfirmDialog(null, null, "User not found. Try again?", JOptionPane.YES_NO_OPTION);
+			if(reply == JOptionPane.YES_OPTION)
+			{
+				continue;
+			}
+			f.dispose();
+			admin();
+			return null;
+		}
 	}
 
 	// Fill the customer text fields with one customer's details
