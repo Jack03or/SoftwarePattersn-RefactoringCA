@@ -21,6 +21,7 @@ public class Menu extends JFrame{
 	private ArrayList<Customer> customerList = new ArrayList<Customer>();
 	private AdminAccountHelper adminAccountHelper = new AdminAccountHelper();
 	private CustomerActionHelper customerActionHelper = new CustomerActionHelper();
+	private DialogInputHelper dialogInputHelper = new DialogInputHelper();
 	private BankFile bankFile = new BankFile();
 	private String currentFilePath = null;
 	private boolean hasUnsavedChanges = false;
@@ -676,7 +677,7 @@ public class Menu extends JFrame{
 						public void actionPerformed(ActionEvent ae) {
 							String euro = "\u20ac";
 						 	// Reuse helper method for numeric input with retry
-							Double interestValue = promptForNumericInputWithRetry("Enter interest percentage you wish to apply: \n NOTE: Please enter a numerical value. (with no percentage sign) \n E.g: If you wish to apply 8% interest, enter '8'");
+							Double interestValue = dialogInputHelper.promptForNumericInputWithRetry(f, "Enter interest percentage you wish to apply: \n NOTE: Please enter a numerical value. (with no percentage sign) \n E.g: If you wish to apply 8% interest, enter '8'");
 							if(interestValue == null)
 							{
 								return;
@@ -1378,7 +1379,7 @@ public class Menu extends JFrame{
 			}		if(on == true)
 					{
 				// Reuse helper method for numeric input
-				Double balanceValue = promptForNumericInputOnce("Enter amount you wish to lodge:");
+				Double balanceValue = dialogInputHelper.promptForNumericInputOnce(f, "Enter amount you wish to lodge:");
 				if(balanceValue == null)
 				{
 					return;
@@ -1411,7 +1412,7 @@ public class Menu extends JFrame{
 				}		if(on == true)
 						{
 					// Reuse helper method for numeric input
-					Double withdrawValue = promptForNumericInputOnce("Enter amount you wish to withdraw (max 500):");
+					Double withdrawValue = dialogInputHelper.promptForNumericInputOnce(f, "Enter amount you wish to withdraw (max 500):");
 					if(withdrawValue == null)
 					{
 						return;
@@ -1575,7 +1576,7 @@ public class Menu extends JFrame{
 			return;
 		}
 
-		Double overdraftValue = promptForNumericInputOnce("Enter overdraft limit:");
+		Double overdraftValue = dialogInputHelper.promptForNumericInputOnce(f, "Enter overdraft limit:");
 		if(overdraftValue == null)
 		{
 			return;
@@ -1594,7 +1595,7 @@ public class Menu extends JFrame{
 			return;
 		}
 
-		Double interestValue = promptForNumericInputOnce("Enter interest percentage to apply to all deposit accounts:");
+		Double interestValue = dialogInputHelper.promptForNumericInputOnce(f, "Enter interest percentage to apply to all deposit accounts:");
 		if(interestValue == null)
 		{
 			return;
@@ -1713,53 +1714,5 @@ public class Menu extends JFrame{
 		System.exit(0);
 	}
 
-	// Prompt once for a numeric value
-	private Double promptForNumericInputOnce(String message)
-	{
-		String input = JOptionPane.showInputDialog(f, message);
-		if(input == null)
-		{
-			return null;
-		}
-		if(isNumeric(input))
-		{
-			return Double.valueOf(input);
-		}
-		JOptionPane.showMessageDialog(f, "You must enter a numerical value!" ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-		return null;
-	}
-
-	// Prompt until a numeric value is entered
-	private Double promptForNumericInputWithRetry(String message)
-	{
-		boolean loop = true;
-		while(loop)
-		{
-			String input = JOptionPane.showInputDialog(f, message);
-			if(input == null)
-			{
-				return null;
-			}
-			if(isNumeric(input))
-			{
-				return Double.valueOf(input);
-			}
-			JOptionPane.showMessageDialog(f, "You must enter a numerical value!" ,"Oops!",  JOptionPane.INFORMATION_MESSAGE);
-		}
-		return 0.0;
-	}
-
-	public static boolean isNumeric(String str)  // a method that tests if a string is numeric
-	{  
-	  try  
-	  {  
-	    double d = Double.parseDouble(str);  
-	  }  
-	  catch(NumberFormatException nfe)  
-	  {  
-	    return false;  
-	  }  
-	  return true;  
-	}
 }
 
